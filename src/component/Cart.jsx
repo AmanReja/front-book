@@ -13,6 +13,7 @@ function Cart() {
   const getAllcart = useContext(Getallcart);
   const cartvalue = useContext(cartcontext);
   const [rezPayid, setRezPayid] = useState("");
+  const base_url = "https://bookapp-3e2d.onrender.com";
 
   const searcher = useContext(Searchcontext);
   const date = new Date();
@@ -66,7 +67,7 @@ function Cart() {
       body: JSON.stringify(addpayment)
     };
     const response = await fetch(
-      `http://localhost:3000/pay/createPayment`,
+      `${base_url}/pay/createPayment`,
       requestOptions
     );
     const data = await response.json();
@@ -78,7 +79,7 @@ function Cart() {
       key: "rzp_test_ND81BEh4gRO77Q", // Enter the Key ID generated from the Dashboard
       amount: calculatetotalprice * 100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
       currency: "INR",
-      name: "Online Shopping", //your business name
+      name: "Book shop", //your business name
       description: "There are 3 Products.",
       image:
         "https://images.shiksha.com/mediadata/images/1626695443phppjGnqq.jpeg",
@@ -106,7 +107,7 @@ function Cart() {
       body: JSON.stringify(successpayment)
     };
     const response = await fetch(
-      `http://localhost:3000/pay/sucessPayment/${_id}`,
+      `${base_url}/pay/sucessPayment/${_id}`,
       requestOptions
     );
     const data = await response.json();
@@ -156,7 +157,7 @@ function Cart() {
         };
 
         const response = await fetch(
-          `http://localhost:3000/cart/deleteCartitem/${p._id}`,
+          `${base_url}/cart/deleteCartitem/${p._id}`,
           requestOptions
         );
         const data = await response.json();
@@ -194,7 +195,7 @@ function Cart() {
       };
 
       const response = await fetch(
-        `http://localhost:3000/cart/updateCartitem/${cart._id}`, // Cart ID
+        `${base_url}/cart/updateCartitem/${cart._id}`, // Cart ID
         requestOptions
       );
     } catch (error) {
@@ -223,7 +224,7 @@ function Cart() {
       };
 
       const response = await fetch(
-        `http://localhost:3000/cart/updateCartitem/${cart._id}`, // Cart ID
+        `${base_url}/cart/updateCartitem/${cart._id}`, // Cart ID
         requestOptions
       );
     } catch (error) {
