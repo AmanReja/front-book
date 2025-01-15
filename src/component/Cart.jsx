@@ -85,7 +85,7 @@ function Cart() {
         "https://images.shiksha.com/mediadata/images/1626695443phppjGnqq.jpeg",
       handler: function (response) {
         setRezPayid(response.razorpay_payment_id);
-        paySuccess(response.razorpay_payment_id, data._id);
+        paySuccess(response.razorpay_payment_id, data._id, data.amount);
       }
     };
 
@@ -95,7 +95,7 @@ function Cart() {
   console.log("success", successdetails);
   console.log("rezid", rezPayid);
 
-  const paySuccess = async (rid, _id) => {
+  const paySuccess = async (rid, _id, amount) => {
     const successpayment = {
       razorpayid: rid,
       status: "Success"
@@ -121,7 +121,7 @@ function Cart() {
     }
     // Voice message after successful payment
     const utterance = new SpeechSynthesisUtterance(
-      ` ${successdetails.amount} rupees has been sent.`
+      ` ${amount} rupees has been sent.`
     );
     window.speechSynthesis.speak(utterance);
   };
