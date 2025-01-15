@@ -10,7 +10,7 @@ import "./Slider.css";
 import { BsChevronCompactLeft, BsChevronCompactRight } from "react-icons/bs";
 
 function Slider() {
-  const base_url = "https://bookapp-3e2d.onrender.com";
+  const base_url = "https://back-book-zct1.onrender.com";
   const [product, setProducts] = useState([]);
 
   // console.log(10, search);

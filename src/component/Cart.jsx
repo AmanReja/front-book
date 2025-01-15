@@ -13,7 +13,7 @@ function Cart() {
   const getAllcart = useContext(Getallcart);
   const cartvalue = useContext(cartcontext);
   const [rezPayid, setRezPayid] = useState("");
-  const base_url = "https://bookapp-3e2d.onrender.com";
+  const base_url = "https://back-book-zct1.onrender.com";
 
   const searcher = useContext(Searchcontext);
   const date = new Date();

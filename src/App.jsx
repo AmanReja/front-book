@@ -27,13 +27,12 @@ function App() {
   const [open, setOpen] = useState(true);
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState([]);
+  const base_url = "https://back-book-zct1.onrender.com";
 
   const getallcartitem = async () => {
     const userid = JSON.parse(localStorage.getItem("user"));
     const id = userid._id;
-    const response = await fetch(
-      `http://localhost:3000/cart/getAllcartitem/${id}`
-    );
+    const response = await fetch(`${base_url}/cart/getAllcartitem/${id}`);
     const data = await response.json();
     setCart(data);
   };

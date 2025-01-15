@@ -7,7 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function Register() {
-  const base_url = "https://bookapp-3e2d.onrender.com";
+  const base_url = "https://back-book-zct1.onrender.com";
   const [email, setEmail] = useState("");
   const [number, setNumber] = useState("");
   const [pass, setPass] = useState("");

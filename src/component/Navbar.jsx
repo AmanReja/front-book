@@ -19,6 +19,7 @@ function Navbar({ searchHandelar }) {
   const [pcheck, setPcheck] = useState(false);
   const [userdata, setUserdata] = useState("");
   const [user, setUser] = useState([]);
+  const base_url = "https://back-book-zct1.onrender.com";
 
   const handelpcheck = () => {
     setPcheck((prev) => !prev);
@@ -55,9 +56,7 @@ function Navbar({ searchHandelar }) {
   const getoneuser = async () => {
     const userid = JSON.parse(localStorage.getItem("user"));
     const userdomain = userid._id;
-    const response = await fetch(
-      `http://localhost:3000/user/getUser/${userdomain}`
-    );
+    const response = await fetch(`${base_url}/user/getUser/${userdomain}`);
     const data = await response.json();
     setUser(data);
   };
