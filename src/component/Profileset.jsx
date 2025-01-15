@@ -15,7 +15,7 @@ const Profileset = () => {
   const [fileload, setFileload] = useState(false);
   const [load, setLoad] = useState(false);
   const [user, setUser] = useState([]);
-
+  const base_url = "https://bookapp-3e2d.onrender.com";
   const handelshow = () => {
     setShow((prev) => !prev);
   };
@@ -26,9 +26,7 @@ const Profileset = () => {
   const getoneuser = async () => {
     const userid = JSON.parse(localStorage.getItem("user"));
     const userdomain = userid._id;
-    const response = await fetch(
-      `http://localhost:3000/user/getUser/${userdomain}`
-    );
+    const response = await fetch(`${base_url}/user/getUser/${userdomain}`);
     const data = await response.json();
     setUser(data);
   };
@@ -79,7 +77,7 @@ const Profileset = () => {
       body: JSON.stringify(user)
     };
     const response = await fetch(
-      `http://localhost:3000/user/updateUser/${user._id}`,
+      `${base_url}/user/updateUser/${user._id}`,
       requestOptions
     );
     const data = await response.json();
@@ -117,7 +115,7 @@ const Profileset = () => {
           body: JSON.stringify(user)
         };
         const response = await fetch(
-          `http://localhost:3000/user/deleteUser/${user._id}`,
+          `${base_url}/user/deleteUser/${user._id}`,
           requestOptions
         );
         const data = await response.json();
