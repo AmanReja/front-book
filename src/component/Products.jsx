@@ -57,10 +57,7 @@ function Products() {
         body: JSON.stringify(new_cart)
       };
 
-      const response = await fetch(
-        `http://localhost:3000/cart/addCart`,
-        requestOptions
-      );
+      const response = await fetch(`${base_url}/cart/addCart`, requestOptions);
       const data = await response.json();
 
       if (data._id !== null) {
