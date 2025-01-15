@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import "./dashboard.css";
+import "./Dashboard.css";
 import { Link } from "react-router-dom";
+import Loader from "./Loader";
 
 function Dashboard() {
   const [open, setOpen] = useState(true);
@@ -31,7 +32,7 @@ function Dashboard() {
         className={
           open
             ? "close"
-            : "shadow-lg rounded-r-3xl z-20 duration-500 box-container"
+            : " shadow-lg rounded-r-3xl z-20 duration-500 box-container"
         }
       >
         <a className="icons" href="#">

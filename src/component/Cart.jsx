@@ -23,15 +23,11 @@ function Cart() {
 
   const [details, setDetails] = useState(false);
   const [buy, setbuy] = useState(false);
+  const [total, setTotal] = useState(true);
   const [count, setCount] = useState(1);
 
-  const handleQuantityChange = (index, increment) => {
-    const updatedCart = [...value.cart];
-    const updatedItem = { ...updatedCart[index] };
-
-    updatedItem.quantity = Math.max(1, updatedItem.quantity + increment); // Ensure quantity is at least 1
-    updatedCart[index] = updatedItem;
-    value.setCart(updatedCart);
+  const handeltotal = () => {
+    setTotal((prev) => !prev);
   };
 
   const handelbuy = (p) => {
@@ -68,13 +64,19 @@ function Cart() {
       <div className=" cart-box min-h-[1000px] bg-gray-900">
         <div
           className={
-            value.cart.length > 0
+            !total
               ? "cart-b1 bg-gray-800 h-max w-[700px] rounded-md p-4 shadow-[0_3px_20px_-10px_rgba(6,81,237,0.4)] z-10 absolute top-[100px] left-[700px]"
               : "hidden"
           }
         >
           <h3 className="text-lg font-bold text-white">Order Summary</h3>
           <br />
+          <button
+            onClick={handeltotal}
+            className=" bg-lime-500 w-[150px] absolute right-[10px] top-[3%]"
+          >
+            <i class="fa-solid fa-x"></i>
+          </button>
           <div>
             <label className="block text-base font-semibold text-white mb-2">
               Card Holder Name
@@ -181,11 +183,22 @@ function Cart() {
         <div
           className={
             value.cart.length > 0
-              ? " cart-head bg-gray-900 rounded w-[700px] items-center	 h-[60px] border-spacing-2 flex gap-[200px]"
+              ? "shopping-head  pl-[50px] cart-head bg-gray-900 rounded w-[700px] items-center	 h-[60px] border-spacing-2 flex gap-[50px]"
               : "hidden"
           }
         >
-          <h1 className="ml-[80px]  font-bold text-2xl">Shopping Cart </h1>{" "}
+          <h1 className="font-bold text-2xl">Shopping Cart </h1>{" "}
+          <button
+            onClick={handeltotal}
+            className={
+              total
+                ? "bg-lime-500 flex items-center justify-center w-[170px]"
+                : "hidden"
+            }
+          >
+            <p>Check total</p>
+            <i className="fa-solid text-2xl w-[60px] fa-arrow-right rotate-45"></i>
+          </button>
           <h1 className="text-2xl font-thin w-[170px] text-center rounded bg-sky-500">
             Total items : {value.cart.length}
           </h1>
@@ -314,9 +327,6 @@ function Cart() {
                           Qty:X{p.quantity}
                         </h4>
                         <button
-                          onClick={() => {
-                            handleQuantityChange(index, -1);
-                          }}
                           type="button"
                           className="flex items-center justify-center w-5 h-5 bg-blue-600 outline-none rounded-full"
                         >
@@ -335,9 +345,6 @@ function Cart() {
                           {count}
                         </span>
                         <button
-                          onClick={() => {
-                            handleQuantityChange(index, 1);
-                          }}
                           type="button"
                           className="flex items-center justify-center w-5 h-5 bg-blue-600 outline-none rounded-full"
                         >

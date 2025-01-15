@@ -4,8 +4,12 @@ import Dashboard from "./Dashboard";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Loader from "./Loader";
+import "./Mnorder.css";
 
 function Mnorder() {
+  const base_url = "https://bookapp-3e2d.onrender.com";
+  const [load, setLoad] = useState(false);
   // const [bookid, setBookid] = useState("");
   const [bookname, setBookname] = useState("");
   const [bookprice, setBookprice] = useState("");
@@ -19,12 +23,14 @@ function Mnorder() {
   console.log(bookrating);
 
   const handleImageUpload = async (e) => {
+    setLoad(true);
     console.log(16, "hiii");
     const file = e.target.files[0];
-    // if (!file) {
-    //   console.error("No file selected");
-    //   return;
-    // }
+    if (!file) {
+      setLoad(false);
+      console.error("No file selected");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("file", file);
@@ -44,8 +50,10 @@ function Mnorder() {
 
       setBookimage(x);
       setBookimageid(y);
+      setLoad(false);
     } catch (error) {
       console.error("Error uploading image: ", error);
+      setLoad(false);
     }
   };
 
@@ -70,10 +78,7 @@ function Mnorder() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(new_product)
     };
-    const response = await fetch(
-      "http://localhost:3000/seller/addBook",
-      requestOptions
-    );
+    const response = await fetch(`${base_url}/seller/addBook`, requestOptions);
     const data = await response.json();
 
     console.log(12, data);
@@ -90,13 +95,13 @@ function Mnorder() {
   return (
     <>
       <Dashboard></Dashboard>
-      <div className="bg-gray-900 h-[100vh]">
+      <div className=" box-b bg-gray-900 h-[100vh]">
         <div>
           <ToastContainer />
 
           <section className="bg-white dark:bg-gray-900"></section>
 
-          <div className="py-8 px-4 mx-auto max-w-2xl lg:py-16">
+          <div className=" py-8 px-4 mx-auto max-w-2xl lg:py-16">
             <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
               Add a new Book
             </h2>
@@ -226,29 +231,33 @@ function Mnorder() {
                     required
                   />
                 </div>
-                <div className="relative right-5 max-w-lg mx-auto">
-                  <label
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    htmlFor="user_avatar"
-                  >
-                    Upload file
-                  </label>
-                  <input
-                    onChange={(e) => {
-                      handleImageUpload(e);
-                    }}
-                    className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                    aria-describedby="user_avatar_help"
-                    id="user_avatar"
-                    type="file"
-                  />
-                  <div
-                    className="mt-1 text-sm text-gray-500 dark:text-gray-300"
-                    id="user_avatar_help"
-                  >
-                    Please upload your products image
+                {load ? (
+                  <div className="loader"></div>
+                ) : (
+                  <div className="relative right-5 max-w-lg mx-auto">
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                      htmlFor="user_avatar"
+                    >
+                      Upload file
+                    </label>
+                    <input
+                      onChange={(e) => {
+                        handleImageUpload(e);
+                      }}
+                      className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                      aria-describedby="user_avatar_help"
+                      id="user_avatar"
+                      type="file"
+                    />
+                    <div
+                      className="mt-1 text-sm text-gray-500 dark:text-gray-300"
+                      id="user_avatar_help"
+                    >
+                      Please upload your products image
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
               <button
                 type="submit"

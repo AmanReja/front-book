@@ -19,11 +19,13 @@ import Productcotext from "./component/Context/Productcotext";
 import cartcontext from "./component/Context/cartcontext";
 import Cart from "./component/Cart";
 import Navtest from "./component/Navtest";
+import loadercontext from "./component/Context/loadercontext";
 
 function App() {
   const [open, setOpen] = useState(true);
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState([]);
+
   // const addCart = useRef([]);
 
   // async function filter() {

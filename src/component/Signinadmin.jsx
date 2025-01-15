@@ -7,6 +7,7 @@ import "../App.css";
 import "./Admin.css";
 
 function Signinadmin() {
+  const base_url = "https://bookapp-3e2d.onrender.com";
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [phone, setPhone] = useState("");
@@ -26,10 +27,7 @@ function Signinadmin() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(new_admin)
     };
-    const response = await fetch(
-      "http://localhost:3000/admin/addAdmin",
-      requestOptions
-    );
+    const response = await fetch(`${base_url}/admin/addAdmin`, requestOptions);
     const data = await response.json();
 
     if (data._id != null) {

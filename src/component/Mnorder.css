@@ -1,0 +1,9 @@
+@media only screen and (max-width: 600px) {
+  .box-b {
+    padding-bottom: 100px;
+
+    width: 100%;
+    position: relative;
+    height: max-content;
+  }
+}

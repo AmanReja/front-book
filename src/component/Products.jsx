@@ -8,8 +8,10 @@ import cartcontext from "./Context/cartcontext";
 import { Bounce } from "react-awesome-reveal";
 import "./Products.css";
 import { NavLink } from "react-router-dom";
+import Loader from "./Loader";
 
 function Products() {
+  // const [load, setLoad] = useState(true);
   const base_url = "https://bookapp-3e2d.onrender.com";
   const value = useContext(cartcontext);
   const [product, setProducts] = useState([]);
@@ -28,9 +30,9 @@ function Products() {
   async function getProducts() {
     const response = await fetch(`${base_url}/seller/getAllBooks/${searcher}`);
     const data = await response.json();
-    // const items = data.items;
 
     setProducts(data);
+    // setLoad(false);
   }
 
   useEffect(() => {
@@ -44,6 +46,7 @@ function Products() {
       <ToastContainer></ToastContainer>
       <div id="pl" className="  items-container">
         <h1></h1>
+
         {product.map((item) => (
           <Bounce delay={0.5}>
             <div className=" hover:translate-y-6 duration-500 blackf align-i h-[500px] pro-detail w-[500px] lg:pl-8 pr[100px] xl:px-16 max-lg:mx-auto max-lg:mt-8">

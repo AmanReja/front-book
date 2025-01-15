@@ -5,7 +5,10 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./Admin.css";
 
+// "http://localhost:3000/admin/loginAdmin",
+
 function Loginadmin() {
+  const base_url = "https://bookapp-3e2d.onrender.com";
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const Navigate = useNavigate();
@@ -21,7 +24,7 @@ function Loginadmin() {
       body: JSON.stringify(new_admin)
     };
     const response = await fetch(
-      "http://localhost:3000/admin/loginAdmin",
+      `${base_url}/admin/loginAdmin`,
       requestOptions
     );
     const data = await response.json();
@@ -111,30 +114,15 @@ function Loginadmin() {
                   </div>
                   <div className="flex justify-evenly relative top-[35px]">
                     <div className="relative h-[40px] w-[70%]">
-                      <Link to="/adminsignin">
-                        <button className=" h-full w-full  bg-red-600  hover:bg-zinc-950 text-white rounded-md px-2 py-1">
-                          Sign In
-                        </button>
-                      </Link>
-                    </div>
-                    <svg
-                      className="bg-black mx-5 max-[400px]:hidden"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width={2}
-                      height={36}
-                      viewBox="0 0 2 36"
-                      fill="none"
-                    >
-                      <path d="M1 0V36" stroke="#E5E7EB" />
-                    </svg>
-                    <div className="relative h-[80px] w-[30%]">
                       <button
                         type="button"
-                        className=" h-full w-full bg-blue-500 hover:bg-lime-400 text-white rounded-md px-2 py-1"
+                        className=" h-full w-full  bg-red-600  hover:bg-zinc-950 text-white rounded-md px-2 py-1"
                       >
                         Forgot password
                       </button>
                     </div>
+
+                    <div className="relative h-[80px] w-[30%]"></div>
                   </div>
                 </div>
               </div>

@@ -21,6 +21,7 @@ function Slider() {
     // const items = data.items;
 
     setProducts(data);
+    setLoad(false);
   }
 
   useEffect(() => {
@@ -64,7 +65,7 @@ function Slider() {
 
   return (
     <>
-      <div className="aman max w-[1400]px top-[30px] h-[700px] w-full m-auto py-20 px-20 absolute z-1">
+      <div className="aman max w-[1400]px top-[40px] h-[700px] w-full m-auto py-20 px-20 absolute z-1">
         <div
           style={{
             backgroundImage: `url(${product[currentIndex]?.bookimage})`
