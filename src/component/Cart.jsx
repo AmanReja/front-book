@@ -450,6 +450,7 @@ function Cart() {
                             {p.items[0].bookname}
                           </a>
                         </h3>
+                        <br />
                         <p className="ml-4 	">${p.items[0].price}</p>
                       </div>
                       <p className="mt-1 text-sm text-gray-500">
