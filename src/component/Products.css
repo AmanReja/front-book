@@ -6,26 +6,8 @@ html {
   overflow-x: hidden;
 }
 
-.items-container {
-  margin-top: -20px;
-  width: 100%;
-  height: max-content;
-  /* margin: 50px 10%; */
-  display: flex;
 
-  flex-wrap: wrap;
-
-  gap: 45px;
-  background-color: rgb(17 24 39);
-
-  top: 3px;
-  left: 0;
-  position: relative;
-
-  padding-bottom: 30px;
-  text-align: left;
-  justify-content: space-around;
-}
+ 
 .blackf {
   padding-top: 25px;
   border-radius: 10px;
@@ -39,13 +21,18 @@ html {
 }
 @media only screen and (max-width: 600px) {
   .blackf {
-    width: 50%;
-    left: -159px;
+    width: 100%;
+    left: 0px;
     position: relative;
+   margin-top: 50px;
   }
   .p-add-btn {
     display: ruby;
     position: relative;
     top: -12px;
+  }body,html{
+    overflow-x: hidden;
+  }.items-container{
+    padding-top: 142px;
   }
 }

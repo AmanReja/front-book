@@ -1,5 +1,4 @@
-import { createContext } from "react";
-import React from "react";
+import { createContext, React } from "react";
 
 const cartcontext = createContext(null);
 

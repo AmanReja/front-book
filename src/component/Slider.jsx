@@ -18,10 +18,9 @@ function Slider() {
   async function getProducts() {
     const response = await fetch(`${base_url}/seller/getAllBooks`);
     const data = await response.json();
-    // const items = data.items;
+    console.log("slid", data);
 
     setProducts(data);
-    setLoad(false);
   }
 
   useEffect(() => {
@@ -70,7 +69,7 @@ function Slider() {
           style={{
             backgroundImage: `url(${product[currentIndex]?.bookimage})`
           }}
-          className="box w-full h-full rounded-2xl bg-center bg-cover duration-[0.2s] "
+          className="box w-[350px] h-full rounded-2xl bg-center bg-cover duration-[0.2s] "
         ></div>
         <div className=" nav-l absolute top-[50%] -translate-x-0 translate-x[-50%] left-5 text-2xl rounded-full p-2 bg-black/20 cursor-pointer hover:bg-lime-400 ">
           <BsChevronCompactLeft onClick={prevSlide} size={40} />

@@ -232,7 +232,7 @@ function Mnorder() {
                   />
                 </div>
                 {load ? (
-                  <div className="loader"></div>
+                  <div className="loader2"></div>
                 ) : (
                   <div className="relative right-5 max-w-lg mx-auto">
                     <label

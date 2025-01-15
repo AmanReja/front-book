@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext, useRef, useCallback } from "react";
 import reactLogo from "./assets/react.svg";
 import "./index.css";
 import "./App.css";
@@ -20,24 +20,27 @@ import cartcontext from "./component/Context/cartcontext";
 import Cart from "./component/Cart";
 import Navtest from "./component/Navtest";
 import loadercontext from "./component/Context/loadercontext";
+import Profileset from "./component/Profileset";
+import Getallcart from "./component/Context/Getallcart";
 
 function App() {
   const [open, setOpen] = useState(true);
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState([]);
 
-  // const addCart = useRef([]);
+  const getallcartitem = async () => {
+    const userid = JSON.parse(localStorage.getItem("user"));
+    const id = userid._id;
+    const response = await fetch(
+      `http://localhost:3000/cart/getAllcartitem/${id}`
+    );
+    const data = await response.json();
+    setCart(data);
+  };
 
-  // async function filter() {
-  //   const response = await fetch(
-  //     `http://localhost:3000/seller/filterbookByname/${searcher}`
-  //   );
-  //   const data = await response.json();
-  //   // const items = data.items;
-  //   console.log(12, searcher);
-
-  //   setProducts(data);
-  // }
+  useEffect(() => {
+    getallcartitem();
+  }, []);
 
   const handelchange = (e) => {
     setSearch(e.target.value);
@@ -46,22 +49,33 @@ function App() {
   return (
     <>
       {" "}
-      <cartcontext.Provider value={{ cart, setCart }}>
-        <Searchcontext.Provider value={search}>
-          <Navbar hand={handelchange} open={open} setOpen={setOpen}></Navbar>
-          {/* <Navtest></Navtest> */}
+      <Getallcart.Provider value={getallcartitem}>
+        <cartcontext.Provider value={{ cart, setCart }}>
+          <Searchcontext.Provider value={search}>
+            <Navbar
+              searchHandelar={handelchange}
+              open={open}
+              setOpen={setOpen}
+            ></Navbar>
+            {/* <Navtest></Navtest> */}
 
-          <Outlet>
-            <Products search={search} setSearch={setSearch} />
-            <Home search={search} setSearch={setSearch} />
-            <Login></Login>
-            <Register></Register>
-            <Editproducts></Editproducts>
-            <Cart></Cart>
-          </Outlet>
-          <Footer></Footer>
-        </Searchcontext.Provider>
-      </cartcontext.Provider>
+            <Outlet>
+              <Products
+                getallcartitem={getallcartitem}
+                search={search}
+                setSearch={setSearch}
+              />
+              <Home search={search} setSearch={setSearch} />
+              <Login></Login>
+              <Register></Register>
+              <Editproducts></Editproducts>
+              <Cart></Cart>
+              <Profileset></Profileset>
+            </Outlet>
+            <Footer></Footer>
+          </Searchcontext.Provider>
+        </cartcontext.Provider>
+      </Getallcart.Provider>
     </>
   );
 }

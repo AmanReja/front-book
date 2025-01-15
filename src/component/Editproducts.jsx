@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import Productcotext from "./Context/Productcotext";
 import Searchcontext from "./Context/Searchcontext";
 import "./Editproducts.css";
@@ -7,6 +7,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Loader from "./Loader";
+import Swal from "sweetalert2";
 
 function Editproducts() {
   const [imgload, setImgLoad] = useState(false);
@@ -77,29 +78,37 @@ function Editproducts() {
   };
 
   const handelDelete = async (item) => {
-    if (window.confirm("Are u sure to delete?")) {
-      const requestOptions = {
-        method: "delete",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(item)
-      };
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const requestOptions = {
+          method: "delete",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(item)
+        };
 
-      const response = await fetch(
-        `${base_url}/seller/deleteBook/${item._id}`,
-        requestOptions
-      );
-      const data = await response.json();
-      console.log(12, response);
-      console.log(data);
-      if (response.ok) {
-        toast("Your product has been deleted", {
-          theme: "dark"
+        const response = await fetch(
+          `${base_url}/seller/deleteBook/${item._id}`,
+          requestOptions
+        );
+        const data = await response.json();
+        console.log(12, response);
+        console.log(data);
+
+        Swal.fire({
+          title: "Deleted!",
+          text: "Your file has been deleted.",
+          icon: "success"
         });
-      } else {
-        console.log(2, data._id);
-        toast.error("Your product has not deleted", { theme: "dark" });
       }
-    }
+    });
   };
   const [editedItem, setEditedItem] = useState(null);
 
@@ -110,8 +119,6 @@ function Editproducts() {
   };
 
   const updateBook = async () => {
-    console.log(88, editedItem._id, editedItem.bookname);
-
     //console.log(13, item, editedItem);
 
     //Preset:  l838hc61

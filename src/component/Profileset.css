@@ -1,0 +1,13 @@
+@media only screen and (max-width:600px){
+    .box-contenar{
+        width: 137%;
+        position: relative;
+        left: -45px;
+    }.form-box{
+        width: 100%;
+        position: absolute;
+        left: 5px;
+    }.input-box{
+        top:150%;
+    }
+} 

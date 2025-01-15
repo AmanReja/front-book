@@ -5,8 +5,15 @@ import "./Cart.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import master from "../assets/icons/master.png";
+import Swal from "sweetalert2";
+import camera from "../assets/icons/camara.png";
+import Getallcart from "./Context/Getallcart";
 
 function Cart() {
+  const getAllcart = useContext(Getallcart);
+  const cartvalue = useContext(cartcontext);
+  const [rezPayid, setRezPayid] = useState("");
+
   const searcher = useContext(Searchcontext);
   const date = new Date();
   const formatdate = date.toLocaleDateString("en-US", {
@@ -15,23 +22,115 @@ function Cart() {
     year: "numeric"
   });
 
-  const random = Math.floor(Math.random() * 9000000000) + 1000000000;
-  // console.log(33, date);
-  // console.log(33, random);
-
   const value = useContext(cartcontext);
 
   const [details, setDetails] = useState(false);
+  const [successdetails, setSuccessdetails] = useState([]);
+  // const [makepayment, setMakepayment] = useState(false);
+
   const [buy, setbuy] = useState(false);
   const [total, setTotal] = useState(true);
-  const [count, setCount] = useState(1);
+
+  const calculatetotalprice = value.cart.reduce((acumulate, item) => {
+    return acumulate + item.items[0].price * item.items[0].quantity;
+  }, 0);
+  const loadScript = (src) => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = () => {
+        resolve(true);
+      };
+      script.onerror = () => {
+        resolve(false);
+      };
+      document.body.appendChild(script);
+    });
+  };
+  // console.log(48, cartvalue.cart[0].userid);
+
+  const handelpay = async () => {
+    const addpayment = {
+      userid: cartvalue.cart[0].userid,
+      amount: calculatetotalprice,
+      brandname: "Online Shopping",
+      quantity: value.cart.length,
+      brandimage:
+        "https://images.shiksha.com/mediadata/images/1626695443phppjGnqq.jpeg",
+      razorpayid: ""
+    };
+
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(addpayment)
+    };
+    const response = await fetch(
+      `http://localhost:3000/pay/createPayment`,
+      requestOptions
+    );
+    const data = await response.json();
+
+    console.log(33, data);
+    setSuccessdetails(data);
+
+    var options = {
+      key: "rzp_test_ND81BEh4gRO77Q", // Enter the Key ID generated from the Dashboard
+      amount: calculatetotalprice * 100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+      currency: "INR",
+      name: "Online Shopping", //your business name
+      description: "There are 3 Products.",
+      image:
+        "https://images.shiksha.com/mediadata/images/1626695443phppjGnqq.jpeg",
+      handler: function (response) {
+        setRezPayid(response.razorpay_payment_id);
+        paySuccess(response.razorpay_payment_id, data._id);
+      }
+    };
+
+    var rzp1 = new window.Razorpay(options);
+    rzp1.open();
+  };
+  console.log("success", successdetails);
+  console.log("rezid", rezPayid);
+
+  const paySuccess = async (rid, _id) => {
+    const successpayment = {
+      razorpayid: rid,
+      status: "Success"
+    };
+
+    const requestOptions = {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(successpayment)
+    };
+    const response = await fetch(
+      `http://localhost:3000/pay/sucessPayment/${_id}`,
+      requestOptions
+    );
+    const data = await response.json();
+    console.log("patch data", data);
+    if (response.ok) {
+      Swal.fire({
+        title: "Good job!",
+        text: "payment succssful!",
+        icon: "success"
+      });
+    }
+    // Voice message after successful payment
+    const utterance = new SpeechSynthesisUtterance(
+      ` ${successdetails.amount} rupees has been sent.`
+    );
+    window.speechSynthesis.speak(utterance);
+  };
 
   const handeltotal = () => {
     setTotal((prev) => !prev);
   };
 
   const handelbuy = (p) => {
-    setbuy(p);
+    setbuy(p.items[0]);
     if (!details) {
       setDetails(true);
     } else {
@@ -39,23 +138,103 @@ function Cart() {
     }
   };
 
-  const calculatetotalprice = value.cart.reduce((acumulate, item) => {
-    return acumulate + item.price * item.quantity;
-  }, 0);
+  const handelremove = async (p, index) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
 
-  const handelremove = (p, index) => {
-    if (window.confirm("Do you want to remove this item")) {
-      const updatedCart = value.cart.filter((item, i) => {
-        console.log(i, index);
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const requestOptions = {
+          method: "delete",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(p)
+        };
 
-        return i !== index;
-      });
+        const response = await fetch(
+          `http://localhost:3000/cart/deleteCartitem/${p._id}`,
+          requestOptions
+        );
+        const data = await response.json();
 
-      value.setCart(updatedCart);
-      toast.success(`${p.bookname} has been removed`, {
-        theme: "dark"
+        if (!response.ok) {
+          toast.error("Your product has not removed", { theme: "dark" });
+        }
+        Swal.fire({
+          title: "Deleted!",
+          text: "Your file has been deleted.",
+          icon: "success"
+        });
+        await getAllcart();
+      }
+    });
+  };
+
+  useEffect(() => {
+    loadScript("https://checkout.razorpay.com/v1/checkout.js");
+  });
+
+  const incqnt = async (cart, itemIndex) => {
+    console.log(84, cart);
+
+    try {
+      const updatedQuantity = cart.items[0].quantity + 1; // Increment quantity
+
+      const requestOptions = {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          itemId: cart.items[0]._id, // Pass item ID
+          quantity: updatedQuantity // Pass updated quantity
+        })
+      };
+
+      const response = await fetch(
+        `http://localhost:3000/cart/updateCartitem/${cart._id}`, // Cart ID
+        requestOptions
+      );
+    } catch (error) {
+      console.error("Error updating cart:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Something went wrong.",
+        icon: "error"
       });
     }
+    await getAllcart();
+  };
+  const decqnt = async (cart, itemIndex) => {
+    console.log(84, cart);
+
+    try {
+      const updatedQuantity = cart.items[0].quantity - 1; // Increment quantity
+
+      const requestOptions = {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          itemId: cart.items[0]._id, // Pass item ID
+          quantity: updatedQuantity // Pass updated quantity
+        })
+      };
+
+      const response = await fetch(
+        `http://localhost:3000/cart/updateCartitem/${cart._id}`, // Cart ID
+        requestOptions
+      );
+    } catch (error) {
+      console.error("Error updating cart:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Something went wrong.",
+        icon: "error"
+      });
+    }
+    await getAllcart();
   };
 
   return (
@@ -77,55 +256,6 @@ function Cart() {
           >
             <i class="fa-solid fa-x"></i>
           </button>
-          <div>
-            <label className="block text-base font-semibold text-white mb-2">
-              Card Holder Name
-            </label>
-            <input
-              type="text"
-              placeholder="Aman Reja"
-              className="px-4 py-3 placeholder-white bg-transparent text-white w-full text-sm border border-gray-300 rounded-md focus:border-purple-500 outline-none"
-            />
-          </div>
-          <br />
-          <div>
-            <label className="block text-base font-semibold text-white mb-2">
-              Card Number
-            </label>
-            <img
-              className="object-cover relative top-9 left-2 w-[30px] h-[20px]"
-              src={master}
-              alt=""
-            />
-            <input
-              type="text"
-              placeholder="xxxx xxxx xxxx"
-              className="pl-[40px] h-[50px] placeholder-white bg-transparent text-white w-full text-sm border border-gray-300 rounded-md focus:border-purple-500 outline-none"
-            />
-          </div>
-          <br />
-          <div className="exp-container flex justify-between">
-            <div>
-              <label className="block text-base font-semibold text-white mb-2">
-                Expiry Date
-              </label>
-              <input
-                type="number"
-                placeholder="08/27"
-                className="px-4 py-3 placeholder-white bg-transparent text-white w-[200px] text-sm border border-gray-300 rounded-md focus:border-purple-500 outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-base font-semibold text-white mb-2">
-                CVV
-              </label>
-              <input
-                type="number"
-                placeholder="xxxx"
-                className="px-4 py-3 placeholder-white bg-transparent text-white w-[200px]  text-sm border border-gray-300 rounded-md focus:border-purple-500 outline-none"
-              />
-            </div>
-          </div>
 
           <ul className="text-gray-500 text-sm space-y-3 mt-3">
             <li className="flex flex-wrap gap-4">
@@ -143,6 +273,7 @@ function Cart() {
             </li>
           </ul>
           <button
+            onClick={handelpay}
             type="button"
             className="mt-6 text-sm px-6 py-3 w-full bg-blue-700 hover:bg-blue-800 tracking-wide text-white rounded-md"
           >
@@ -230,7 +361,7 @@ function Cart() {
                         <p className="text-muted mb-2">
                           {" "}
                           {}{" "}
-                          <span className="fw-bold text-body">FN{random}</span>
+                          <span className="fw-bold text-body">FN123456789</span>
                         </p>
                         <p className="text-muted mb-0">
                           {" "}
@@ -297,15 +428,15 @@ function Cart() {
           </div>
         </section>
 
-        {value.cart.map((p, index) => (
-          <div key={index} className="  relative w-[710px] bg-gray-900">
+        {cartvalue.cart.map((p, index) => (
+          <div key={p._id} className="  relative w-[710px] bg-gray-900">
             <div className=" fixed  transition-opacity " />
             <div className=" mt-8 ">
               <div className=" box-cart-1  relative left-[80px] flow bg-gray-900">
                 <li className=" box-cart flex py-6 w-[700px]">
                   <div className=" box-car-img w-[200px] h-[132px] shrink-0 overflow-hidden rounded-md border border-gray-200">
                     <img
-                      src={p.bookimage}
+                      src={p.items[0].bookimage}
                       alt="Front of satchel with blue canvas body, black straps and handle, drawstring top, and front zipper pouch."
                       className=" w-full h-full object-cover"
                     />
@@ -315,18 +446,23 @@ function Cart() {
                       <div className="flex text-base font-medium text-gray-900">
                         <h3 className="text-sky-500">
                           <a className="uppercase" href="#">
-                            {p.bookname}
+                            {p.items[0].bookname}
                           </a>
                         </h3>
-                        <p className="ml-4 	">${p.price}</p>
+                        <p className="ml-4 	">${p.items[0].price}</p>
                       </div>
-                      <p className="mt-1 text-sm text-gray-500">{p.authore}</p>
-                      <p>{p.offer}% off</p>
+                      <p className="mt-1 text-sm text-gray-500">
+                        {p.items[0].authore}
+                      </p>
+                      <p>{p.items[0].offer}% off</p>
                       <div className="flex items-center gap-3">
                         <h4 className="text-sm text-gray-500">
-                          Qty:X{p.quantity}
+                          Qty:X{p.items[0].quantity}
                         </h4>
                         <button
+                          onClick={(e) => {
+                            decqnt(p, index);
+                          }}
                           type="button"
                           className="flex items-center justify-center w-5 h-5 bg-blue-600 outline-none rounded-full"
                         >
@@ -342,9 +478,12 @@ function Cart() {
                           </svg>
                         </button>
                         <span className="font-bold text-sm leading-[16px]">
-                          {count}
+                          {p.items[0].quantity}
                         </span>
                         <button
+                          onClick={(e) => {
+                            incqnt(p, index);
+                          }}
                           type="button"
                           className="flex items-center justify-center w-5 h-5 bg-blue-600 outline-none rounded-full"
                         >
@@ -388,7 +527,7 @@ function Cart() {
                         </button>
                         <button
                           onClick={() => {
-                            handelbuy(p), cal();
+                            handelbuy(p, index);
                           }}
                           type="button"
                           className="w-[150px] h-8 rounded bg-lime-400 font-medium  hover:text-indigo-500"

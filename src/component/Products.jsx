@@ -1,6 +1,13 @@
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { React, useContext, useEffect, useState, useRef } from "react";
+import {
+  React,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+  useCallback
+} from "react";
 import right from "../assets/icons/right.png";
 import Searchcontext from "./Context/Searchcontext";
 import Productcotext from "./Context/Productcotext";
@@ -9,22 +16,64 @@ import { Bounce } from "react-awesome-reveal";
 import "./Products.css";
 import { NavLink } from "react-router-dom";
 import Loader from "./Loader";
+import { useNavigate } from "react-router-dom";
+import Getallcart from "./Context/Getallcart";
 
 function Products() {
-  // const [load, setLoad] = useState(true);
+  const navigate = useNavigate();
+  const getAllcart = useContext(Getallcart);
   const base_url = "https://bookapp-3e2d.onrender.com";
   const value = useContext(cartcontext);
   const [product, setProducts] = useState([]);
+  const [userdata, setUserdata] = useState([]);
 
-  const addtoCart = (item) => {
-    toast.success(`${item.bookname} is added to your cart`, {
-      theme: "dark"
-    });
-    value.setCart((prev) => [...prev, item]);
+  useEffect(() => {
+    if (localStorage.getItem("user")) {
+      const newuser = JSON.parse(localStorage.getItem("user"));
+      setUserdata(newuser);
+    }
+  }, []);
 
-    console.log("Cart", 22, value.cart);
+  const addtoCart = async (item) => {
+    if (!localStorage.getItem("user")) {
+      toast.success(`you have to login first`, {
+        theme: "dark"
+      });
 
-    console.log("cart length", 24, value.cart.length);
+      navigate("/login");
+    } else {
+      const new_cart = {
+        userid: userdata._id,
+        itemid: item.id,
+        bookname: item.bookname,
+        price: item.price,
+        bookimage: item.bookimage,
+        authore: item.authore,
+        offer: item.offer
+      };
+      const requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(new_cart)
+      };
+
+      const response = await fetch(
+        `http://localhost:3000/cart/addCart`,
+        requestOptions
+      );
+      const data = await response.json();
+
+      if (data._id !== null) {
+        toast.success(`${item.bookname} is added to your cart`, {
+          theme: "dark"
+        });
+        await getAllcart();
+      } else {
+        toast.error(`failed`, {
+          theme: "dark"
+        });
+      }
+    }
   };
 
   async function getProducts() {
@@ -32,34 +81,39 @@ function Products() {
     const data = await response.json();
 
     setProducts(data);
-    // setLoad(false);
   }
 
   useEffect(() => {
     getProducts();
-  }, [product]);
+  }, []);
+
+  console.log(33, product);
 
   const searcher = useContext(Searchcontext);
 
   return (
     <>
       <ToastContainer></ToastContainer>
-      <div id="pl" className="  items-container">
+
+      <div
+        id="pl"
+        className=" items-container flex flex-wrap items-center justify-center bg-gray-900 gap-[30px]"
+      >
         <h1></h1>
 
         {product.map((item) => (
           <Bounce delay={0.5}>
-            <div className=" hover:translate-y-6 duration-500 blackf align-i h-[500px] pro-detail w-[500px] lg:pl-8 pr[100px] xl:px-16 max-lg:mx-auto max-lg:mt-8">
+            <div className=" blackf  w-[300px] h-[600px] hover:translate-y-6 duration-500 relative xl:px-16 max-lg:mx-auto max-lg:mt-8">
               <div className="w-[300px] h-[200px]">
                 <img
-                  className="w-full hover:scale-[1.1] duration-500 transition-all bg-cover object-cover rounded-3xl m-auto h-full"
+                  className="w-[200px]  duration-500 transition-all bg-cover object-cover  m-auto h-[350px]"
                   src={item.bookimage}
                   alt=""
                 />
               </div>
 
               <div className=" flex items-center justify-between gap-11 mb-6">
-                <div className="w-[600px] text flex items-center justify-evenly flex-col gap-[22px] ">
+                {/* <div className="w-[600px] text flex items-center justify-evenly flex-col gap-[22px] ">
                   <h2 className="font-manrope font-bold text-3xl leading-10 text-white mb-2 relative left-[50px] ">
                     {item.bookname}
                   </h2>
@@ -67,8 +121,8 @@ function Products() {
                     {item.authore}
                     {searcher}
                   </p>
-                </div>
-                <button className="  relative right-[200px] top-[40px] group transition-all duration-500 p-0.5">
+                </div> */}
+                {/* <button className="  relative right-[-50px] top-[127px] group transition-all duration-500 p-0.5">
                   <svg
                     width={33}
                     height={33}
@@ -93,9 +147,10 @@ function Products() {
                       strokeLinejoin="round"
                     />
                   </svg>
-                </button>
+                </button> */}
+                <br />
               </div>
-              <div className="flex flex-col min-[400px]:flex-row min-[400px]:items-center mb-8 gap-y-3">
+              <div className="flex flex-col gap-5 min-[400px]:flex-row min-[400px]:items-center mb-8 gap-y-5 pt-[100px]">
                 <div className="flex items-center">
                   <h5 className="font-manrope font-semibold text-2xl leading-9 text-lime-300 ">
                     $ {item.price}{" "}

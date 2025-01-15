@@ -10,6 +10,7 @@ import Editproducts from "./component/Editproducts.jsx";
 import Signinadmin from "./component/Signinadmin.jsx";
 import Loginadmin from "./component/Loginadmin.jsx";
 import Cart from "./component/Cart.jsx";
+import Profileset from "./component/Profileset.jsx";
 
 import {
   createBrowserRouter,
@@ -30,6 +31,7 @@ const router = createBrowserRouter(
       {/* <Route path="/adminsignin" element={<Signinadmin />} /> */}
       <Route path="/adminlogin" element={<Loginadmin />} />
       <Route path="/Cart" element={<Cart />} />
+      <Route path="/profile" element={<Profileset />} />
     </Route>
   )
 );

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import "./Login.css";
 import glass from "../assets/images/glass.png";
 import Navbar from "./Navbar";
@@ -9,8 +9,10 @@ import ScrollReveal from "scrollreveal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import cartcontext from "./Context/cartcontext";
 
 function Login() {
+  const value = useContext(cartcontext);
   const base_url = "https://bookapp-3e2d.onrender.com";
   const Navigate = useNavigate();
 
@@ -36,12 +38,20 @@ function Login() {
     if (data.length == 0) {
       toast.error("login failed", { theme: "dark" });
     } else {
+      console.log(2, data);
+
+      localStorage.setItem("id", data[0]._id);
+      localStorage.setItem("user", JSON.stringify(data[0]));
+
       Navigate("/");
+      window.location.reload();
     }
 
     const login_input = (document.querySelector("#login-input").value = "");
     const login_pass = (document.querySelector("#login-pass").value = "");
   };
+
+  const userid = JSON.parse(localStorage.getItem("user"));
 
   // useEffect(()=>{
   //   ScrollReveal({ reset: true });
