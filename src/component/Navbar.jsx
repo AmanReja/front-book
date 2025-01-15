@@ -80,7 +80,7 @@ function Navbar({ searchHandelar }) {
               {/* Mobile menu button*/}
               <div
                 onClick={show}
-                className={`items-center flex flex-col duration-300 transition-all justify-center ${
+                className={`relative left-[-8px] items-center flex flex-col duration-300 transition-all justify-center ${
                   !open ? "gap-[-3px]" : "gap-[9px]"
                 } w-[60px] h-[40px]`}
               >
