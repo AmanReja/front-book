@@ -444,13 +444,13 @@ function Cart() {
                   </div>
                   <div className="ml-4 flex flex-1 flex-col">
                     <div>
-                      <div className="flex text-base font-medium text-gray-900">
+                      <div className="flex flex-col text-left  font-medium text-gray-900">
                         <h3 className="text-sky-500">
                           <a className="uppercase" href="#">
                             {p.items[0].bookname}
                           </a>
                         </h3>
-                        <br />
+
                         <p className="ml-4 	">${p.items[0].price}</p>
                       </div>
                       <p className="mt-1 text-sm text-gray-500">
