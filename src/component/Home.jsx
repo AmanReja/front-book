@@ -7,6 +7,7 @@ import Slider from "./Slider";
 import Dashboard from "./Dashboard";
 import Searchcontext from "./Context/Searchcontext";
 import Loader from "./Loader";
+import { ToastContainer } from "react-toastify";
 
 function Home() {
   const base_url = "https://bookapp-3e2d.onrender.com";
@@ -27,6 +28,7 @@ function Home() {
 
   return (
     <>
+      <ToastContainer></ToastContainer>
       {load ? (
         <Loader />
       ) : (

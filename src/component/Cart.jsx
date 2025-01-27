@@ -15,6 +15,8 @@ function Cart() {
   const [rezPayid, setRezPayid] = useState("");
   const base_url = "https://back-book-zct1.onrender.com";
 
+  console.log(18, cartvalue.cart);
+
   const searcher = useContext(Searchcontext);
   const date = new Date();
   const formatdate = date.toLocaleDateString("en-US", {
@@ -119,6 +121,33 @@ function Cart() {
         icon: "success"
       });
     }
+    if (response.ok) {
+      cartvalue.cart.map(async (item) => {
+        const log = item.items[0];
+        console.log("indival", log);
+
+        var new_cart = {
+          userid: item.userid,
+
+          totalamount: amount,
+          itemquantity: cartvalue.cart.length,
+          items: item.items[0]
+        };
+
+        const requestOptions = {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(new_cart)
+        };
+        const response = await fetch(
+          `http://localhost:3000/order/addOrder`,
+          requestOptions
+        );
+        const data = await response.json();
+        console.log(138, data);
+      });
+    }
+
     // Voice message after successful payment
     const utterance = new SpeechSynthesisUtterance(
       ` ${amount} rupees has been sent.`
