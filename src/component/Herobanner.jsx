@@ -34,13 +34,13 @@ function Herobanner() {
                 inspiration, and the promise of a brighter tomorrow.
               </p> */}
             </Slide>
-            <hr
+            {/* <hr
               style={{
                 position: "relative",
                 top: "300px",
                 color: "white"
               }}
-            />
+            /> */}
 
             <div class=" mt-8 flex flex-wrap justify-center gap-4">
               <a

@@ -82,9 +82,10 @@
 }
 @media only screen and (max-width: 600px) {
   .box {
-    width: 122%;
+   
     border-radius: 10px;
-    padding: 0;
+   position: relative;
+   left: -45px;
   }
   .aman {
     /* width: 133%; */

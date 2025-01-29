@@ -6,6 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import master from "../assets/icons/master.png";
 import Swal from "sweetalert2";
+import axios from "axios";
 import camera from "../assets/icons/camara.png";
 import Getallcart from "./Context/Getallcart";
 
@@ -119,32 +120,61 @@ function Cart() {
         title: "Good job!",
         text: "payment succssful!",
         icon: "success"
-      });
-    }
-    if (response.ok) {
-      cartvalue.cart.map(async (item) => {
-        const log = item.items[0];
-        console.log("indival", log);
+      }).then(async (result) => {
+        console.log("valu of cart", cartvalue.cart);
 
-        var new_cart = {
-          userid: item.userid,
+        const items = [];
 
+        for (const item of cartvalue.cart) {
+          const single_item = item.items[0];
+
+          const temp = {
+            bookname: single_item.bookname,
+            price: single_item.price,
+            quantity: single_item.quantity,
+            bookimage: single_item.bookimage,
+            authore: single_item.authore,
+            offer: single_item.offer
+          };
+          items.push(temp);
+        }
+        const new_cart = {
+          userid: cartvalue.cart[0].userid,
           totalamount: amount,
           itemquantity: cartvalue.cart.length,
-          items: item.items[0]
+          items: items // Assuming each `items[0]` contains valid details
         };
 
-        const requestOptions = {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(new_cart)
-        };
-        const response = await fetch(
-          `http://localhost:3000/order/addOrder`,
-          requestOptions
-        );
-        const data = await response.json();
-        console.log(138, data);
+        console.log("Payload for addOrder API:", new_cart);
+
+        // const requestOptions1 = {
+        //   method: "POST",
+        //   headers: { "Content-Type": "application/json" },
+        //   body: JSON.stringify(new_cart)
+        // };
+
+        try {
+          const response1 = await axios.post(
+            `${base_url}/order/addOrder`,
+            new_cart
+          );
+          const mydata = response1.data;
+
+          console.log(162, mydata);
+
+          //const data1 = response1.data;
+
+          if (mydata !== null) {
+            Swal.fire({
+              title: "orders are added to order schema",
+              text: "payment succssful!",
+              icon: "success"
+            });
+            console.log("Add Order Response:", mydata);
+          }
+        } catch (error) {
+          console.error("Error in addOrder request:", error.message);
+        }
       });
     }
 
