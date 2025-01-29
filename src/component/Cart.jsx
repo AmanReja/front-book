@@ -171,6 +171,7 @@ function Cart() {
               icon: "success"
             });
             console.log("Add Order Response:", mydata);
+            window.location.reload();
           }
         } catch (error) {
           console.error("Error in addOrder request:", error.message);
@@ -236,7 +237,7 @@ function Cart() {
 
   useEffect(() => {
     loadScript("https://checkout.razorpay.com/v1/checkout.js");
-  });
+  }, []);
 
   const incqnt = async (cart, itemIndex) => {
     console.log(84, cart);

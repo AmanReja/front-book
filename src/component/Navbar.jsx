@@ -54,7 +54,7 @@ function Navbar({ searchHandelar }) {
     }
   }
   const getoneuser = async () => {
-    const userid = JSON.parse(localStorage.getItem("user"));
+    const userid = JSON.parse(localStorage.getItem("user")) || {};
     const userdomain = userid._id;
     const response = await fetch(`${base_url}/user/getUser/${userdomain}`);
     const data = await response.json();

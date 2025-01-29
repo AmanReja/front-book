@@ -22,6 +22,7 @@ import Navtest from "./component/Navtest";
 import loadercontext from "./component/Context/loadercontext";
 import Profileset from "./component/Profileset";
 import Getallcart from "./component/Context/Getallcart";
+import { ToastContainer, toast } from "react-toastify";
 
 function App() {
   const [open, setOpen] = useState(true);
@@ -30,7 +31,7 @@ function App() {
   const base_url = "https://back-book-zct1.onrender.com";
 
   const getallcartitem = async () => {
-    const userid = JSON.parse(localStorage.getItem("user"));
+    const userid = JSON.parse(localStorage.getItem("user")) || {};
     const id = userid._id;
     const response = await fetch(`${base_url}/cart/getAllcartitem/${id}`);
     const data = await response.json();
@@ -47,7 +48,7 @@ function App() {
 
   return (
     <>
-      {" "}
+      <ToastContainer></ToastContainer>{" "}
       <Getallcart.Provider value={getallcartitem}>
         <cartcontext.Provider value={{ cart, setCart }}>
           <Searchcontext.Provider value={search}>
