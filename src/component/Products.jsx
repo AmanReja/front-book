@@ -29,7 +29,7 @@ function Products() {
 
   useEffect(() => {
     if (localStorage.getItem("user")) {
-      const newuser = JSON.parse(localStorage.getItem("user"));
+      const newuser = JSON.parse(localStorage.getItem("user")) || {};
       setUserdata(newuser);
     }
   }, []);
