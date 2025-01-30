@@ -14,7 +14,7 @@ function Navbar({ searchHandelar }) {
   const menu_buttons = document.querySelector("#menu-buttons");
 
   const [open, setOpen] = useState(true);
-  const [openinp, setOpeninp] = useState(true);
+  const [openinp, setOpeninp] = useState(false);
   const [flag, setFlag] = useState(true);
   const [pcheck, setPcheck] = useState(false);
   const [userdata, setUserdata] = useState("");
@@ -37,22 +37,26 @@ function Navbar({ searchHandelar }) {
       setOpen(true);
     }
   }
-  function openInp() {
-    const show_icon = document.querySelector(".show-icon");
-    const cross_icon = document.querySelector(".cross-icon");
 
-    if (openinp) {
-      setOpeninp(false);
+  const openInput = () => {
+    setOpeninp((prev) => !prev);
+  };
+  // function openInp() {
+  //   const show_icon = document.querySelector(".show-icon");
+  //   const cross_icon = document.querySelector(".cross-icon");
 
-      cross_icon.style.display = "inline-flex";
-      show_icon.style.display = "none";
-    } else {
-      setOpeninp(true);
-      show_icon.style.color = "white";
-      cross_icon.style.display = "none";
-      show_icon.style.display = "inline-flex";
-    }
-  }
+  //   if (openinp) {
+  //     setOpeninp(false);
+
+  //     cross_icon.style.display = "inline-flex";
+  //     show_icon.style.display = "none";
+  //   } else {
+  //     setOpeninp(true);
+  //     show_icon.style.color = "white";
+  //     cross_icon.style.display = "none";
+  //     show_icon.style.display = "inline-flex";
+  //   }
+  // }
   const getoneuser = async () => {
     const userid = JSON.parse(localStorage.getItem("user")) || {};
     const userdomain = userid._id;
@@ -154,7 +158,7 @@ function Navbar({ searchHandelar }) {
                 </div>
               </div>
             </div>
-            <form className="search-container">
+            {/* <form className="search-container">
               <input
                 id="m-search"
                 onChange={searchHandelar}
@@ -175,6 +179,28 @@ function Navbar({ searchHandelar }) {
                   class="text-2xl fa-solid fa-xmark cross-icon"
                 ></i>
               </span>
+            </form> */}
+            <form
+              className="flex items-center justify-between relative sm:r-0 right-[20px]"
+              action=""
+            >
+              <input
+                placeholder="Search here"
+                type="text"
+                className={`transition-all duration-300 outline-none absolute top-[50px] right-[50px] bg-white z-10
+                 ${openinp ? "w-[200px] h-[40px]  text-black " : " h-[0]"}`}
+              />
+              <button
+                className="bg-lime-400 w-[50px] rounded"
+                type="button"
+                onClick={openInput}
+              >
+                {!openinp ? (
+                  <i class="text-2xl fa-solid fa-magnifying-glass "></i>
+                ) : (
+                  <i class="text-2xl fa-solid fa-xmark cross-icon"></i>
+                )}
+              </button>
             </form>
             <div className="profile relative">
               {flag ? (
@@ -201,7 +227,7 @@ function Navbar({ searchHandelar }) {
               <div
                 className={
                   pcheck
-                    ? " absolute z-30 flex flex-col top-[50px] left-[-50px] w-[200px] items-start bg-white text-black px-[20px] gap-2 rounded font-thin text-[17px]"
+                    ? " absolute z-30 flex flex-col top-[50px] left-[-163px] w-[200px] items-start bg-white text-black px-[20px] gap-2 rounded font-thin text-[17px]"
                     : "hidden duration-300"
                 }
               >
