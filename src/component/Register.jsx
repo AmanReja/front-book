@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import glass from "../assets/images/glass.png";
+
 import { Link } from "react-router-dom";
 import "./Register.css";
 import ScrollReveal from "scrollreveal";
@@ -47,8 +47,6 @@ function Register() {
 
   return (
     <>
-      <img className="form-container" src={glass} alt="" />
-
       <ToastContainer />
       <div className="control_form">
         <form

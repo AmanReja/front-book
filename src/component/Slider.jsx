@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
 
-import b1 from "../assets/images/1.jpg";
-import b2 from "../assets/images/2.jpeg";
-import b3 from "../assets/images/3.jpeg";
-import b4 from "../assets/images/4.jpg";
-import b5 from "../assets/images/5.jpeg";
-
 import "./Slider.css";
 import { BsChevronCompactLeft, BsChevronCompactRight } from "react-icons/bs";
 

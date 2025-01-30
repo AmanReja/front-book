@@ -1,8 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import "./Login.css";
-import glass from "../assets/images/glass.png";
-import Navbar from "./Navbar";
-import Footer from "./Footer";
+
 import { Link } from "react-router-dom";
 import Home from "./Home";
 import ScrollReveal from "scrollreveal";
