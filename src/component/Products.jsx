@@ -1,5 +1,6 @@
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Swal from "sweetalert2";
 import {
   React,
   useContext,
@@ -36,8 +37,10 @@ function Products() {
 
   const addtoCart = async (item) => {
     if (!localStorage.getItem("user")) {
-      toast.success(`you have to login first`, {
-        theme: "dark"
+      Swal.fire({
+        title: "You have to login first",
+
+        icon: "success"
       });
 
       navigate("/login");
@@ -61,8 +64,10 @@ function Products() {
       const data = await response.json();
 
       if (data._id !== null) {
-        toast.success(`${item.bookname} is added to your cart`, {
-          theme: "dark"
+        Swal.fire({
+          title: `${item.bookname} is added to your cart`,
+
+          icon: "success"
         });
         await getAllcart();
       } else {
