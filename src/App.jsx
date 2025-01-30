@@ -72,7 +72,7 @@ function App() {
               <Cart></Cart>
               <Profileset></Profileset>
             </Outlet>
-            <Footer></Footer>
+            {/* <Footer></Footer> */}
           </Searchcontext.Provider>
         </cartcontext.Provider>
       </Getallcart.Provider>

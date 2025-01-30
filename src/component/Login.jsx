@@ -105,6 +105,14 @@ function Login() {
                 >
                   Login
                 </button>
+                <div className="flex items-center justify-between">
+                  <div className="text-blue-600">Don't have an account? </div>{" "}
+                  <Link to="/register">
+                    <button className=" bg-sky-400 w-[80px] py-[5px]">
+                      Register{" "}
+                    </button>
+                  </Link>
+                </div>
               </form>
             </div>
           </div>

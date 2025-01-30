@@ -12,7 +12,8 @@ function Register() {
   const [number, setNumber] = useState("");
   const [pass, setPass] = useState("");
 
-  async function register() {
+  async function register(e) {
+    e.preventDefault();
     const new_user = {
       userid: email,
       contact: number,
@@ -35,9 +36,10 @@ function Register() {
     } else {
       toast.error("Registration failed", { theme: "dark" });
     }
-    const login_input = (document.querySelector("#login-input").value = "");
-    const login_num = (document.querySelector("#login-num").value = "");
-    const login_pass = (document.querySelector("#login-pass").value = "");
+
+    setEmail("");
+    setNumber("");
+    setPass("");
   }
 
   // useEffect(()=>{
@@ -47,79 +49,71 @@ function Register() {
 
   return (
     <>
-      <ToastContainer />
-      <div className="control_form">
-        <form
-          className="login-container"
-          onSubmit={(e) => {
-            register(), e.preventDefault();
-          }}
-        >
-          <h2 className="text-4xl ">Register</h2>
-
-          <div className="input-box">
-            <input
-              onChange={(e) => {
-                setEmail(e.target.value);
-              }}
-              required
-              className="login-email"
-              id="login-input"
-              type="text"
-            />
-            <label className="input-lable" htmlFor="login-input">
-              Enter your email
-            </label>
+      <ToastContainer></ToastContainer>
+      <div className="flex h-screen items-center justify-center p-10">
+        <div className="xl:w-1/2  rounded-2xl border border-blue-800 md:shadow-xl">
+          <div className="grid md:grid-cols-2 p-5">
+            <div className>
+              <img
+                src="https://cdni.iconscout.com/illustration/premium/thumb/login-10299071-8333958.png?f=webp"
+                alt
+              />
+            </div>
+            <div className="flex items-center justify-center">
+              <form
+                onSubmit={(e) => {
+                  register(e);
+                }}
+              >
+                <h1 className="text-center font-extrabold uppercase text-rose-500">
+                  User Sign Up
+                </h1>
+                <br />
+                <input
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                  }}
+                  required
+                  type="text"
+                  className="mb-3 w-full rounded-2xl text-black bg-zinc-100 outline-rose-400 px-5 py-3"
+                  placeholder="email"
+                />
+                <input
+                  onChange={(e) => {
+                    setNumber(e.target.value);
+                  }}
+                  required
+                  type="text"
+                  className="mb-3 w-full rounded-2xl text-black bg-zinc-100 outline-rose-400 px-5 py-3"
+                  placeholder="number"
+                />
+                <input
+                  required
+                  onChange={(e) => {
+                    setPass(e.target.value);
+                  }}
+                  type="password"
+                  className="mb-3 w-full rounded-2xl text-black bg-zinc-100 outline-rose-400 px-5 py-3"
+                  placeholder="password"
+                />
+                <button
+                  type="submit"
+                  className="mb-3 w-full rounded-2xl bg-rose-500 px-5 py-3 font-semibold text-white"
+                >
+                  Register
+                </button>
+                <div className="flex items-center justify-between">
+                  <div className="text-blue-600">Already have an account? </div>{" "}
+                  <Link to="/login">
+                    <button className=" bg-sky-400 w-[80px] py-[5px]">
+                      Login{" "}
+                    </button>
+                  </Link>
+                </div>
+              </form>
+            </div>
           </div>
-          <div className="input-box">
-            <input
-              onChange={(e) => {
-                setNumber(e.target.value);
-              }}
-              required
-              className="login-email"
-              id="login-num"
-              type="number"
-            />
-            <label className="input-lable" htmlFor="login-num">
-              Enter your Mobile number
-            </label>
-          </div>
-          <div className="input-box">
-            <input
-              onChange={(e) => {
-                setPass(e.target.value);
-              }}
-              required
-              className="login-email"
-              id="login-pass"
-              type="text"
-            />
-            <label className="input-lable" htmlFor="login-pass">
-              Enter your password
-            </label>
-          </div>
-          <div className="rememberme">
-            <label htmlFor="remember">
-              <input id="remember" type="checkbox" />
-              Remember me
-            </label>
-            <a href="#">Forgot password</a>
-          </div>
-          {/* <Link to="/"> */}
-          <button type="submit" id="login">
-            {" "}
-            Register
-          </button>
-
-          {/* </Link> */}
-          <div className="register">
-            <p>Don't have an account?</p>
-            <Link to="/login">
-              <a href="#">Login</a>
-            </Link>
-          </div>
-        </form>
+        </div>
       </div>
     </>
   );
