@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
 import { Link, useNavigate } from "react-router-dom";
+import card from "../assets/icons/card.jpg";
 
 import "./Admin.css";
 
@@ -44,9 +45,12 @@ function Loginadmin() {
 
   return (
     <>
-      <ToastContainer></ToastContainer>
       <div className=" adminlogo absolute w-[600px] left-[100px] h-[700px]">
-        <img className="w-full h-full object-cover" src={card} alt="" />
+        <img
+          className="w-full sm:h-[600px] h-full object-cover"
+          src={card}
+          alt=""
+        />
       </div>
       <div className=" admin-box relative w-[420px] left-[900px] min-h-screen  py-6 flex flex-col justify-center sm:py-12">
         <form
