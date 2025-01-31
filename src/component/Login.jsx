@@ -62,8 +62,8 @@ function Login() {
   return (
     <>
       <ToastContainer></ToastContainer>
-      <div className="flex h-screen items-center justify-center p-10">
-        <div className="xl:w-1/2  rounded-2xl border border-blue-800 md:shadow-xl">
+      <div className="flex h-[900px] items-center justify-center p-[5px]  ">
+        <div className="w-full rounded-2xl border border-blue-800 md:shadow-xl">
           <div className="grid md:grid-cols-2 p-5">
             <div className>
               <img
