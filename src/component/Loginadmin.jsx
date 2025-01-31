@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 
 import { Link, useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
 import "./Admin.css";
 
 // "http://localhost:3000/admin/loginAdmin",
@@ -32,10 +31,10 @@ function Loginadmin() {
     console.log(33, data.length);
 
     if (data.length == 0) {
-      toast.error("login failed", { theme: "dark" });
+      alert("login failed");
     } else {
       Navigate("/edit");
-      toast("You will be logged in", { theme: "dark" });
+      alert("login successfull");
     }
 
     // const login_input = (document.querySelector("#email").value = "");
