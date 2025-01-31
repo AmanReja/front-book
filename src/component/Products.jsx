@@ -102,7 +102,7 @@ function Products() {
                 />
               </div>
 
-              <div className="flex flex-col gap-5 items-center mb-8 gap-y-5 pt-[100px]">
+              <div className="flex flex-col gap-5 items-center relative top-[50px] mb-8 gap-y-5 pt-[100px]">
                 <div className="flex items-center">
                   <h5 className="font-manrope font-semibold text-2xl leading-9 text-lime-300 ">
                     $ {item.price}{" "}
@@ -113,7 +113,7 @@ function Products() {
                 </div>
               </div>
 
-              <div className="p-add-btn relative flex justify-between gap-4 w-[400px]">
+              <div className="p-add-btn relative flex justify-between top-[80px] gap-4 w-[400px]">
                 <NavLink to="/cart">
                   <button
                     onClick={() => addtoCart(item)}
