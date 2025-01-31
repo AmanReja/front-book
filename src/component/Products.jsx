@@ -113,7 +113,7 @@ function Products() {
                 </div>
               </div>
 
-              <div className="p-add-btn relative flex justify-between top-[80px] gap-4 w-[400px]">
+              <div className="p-add-btn relative flex justify-between top-[120px] gap-4 w-[400px]">
                 <NavLink to="/cart">
                   <button
                     onClick={() => addtoCart(item)}
@@ -125,7 +125,7 @@ function Products() {
 
                 <button
                   onClick={() => addtoCart(item)}
-                  className="bittu text-center h-[40px] w-[170px] px-5 py-4 rounded-[100px] bg-red-600 flex items-center justify-center font-semibold text-[15px] text-white shadow-sm transition-all duration-500 hover:bg-lime-400 hover:shadow-indigo-300"
+                  className=" text-center h-[40px] w-[170px] px-5 py-4 rounded-[100px] bg-red-600 flex items-center justify-center font-semibold text-[15px] text-white shadow-sm transition-all duration-500 hover:bg-lime-400 hover:shadow-indigo-300"
                 >
                   Add to cart
                 </button>

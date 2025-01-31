@@ -29,7 +29,7 @@ html {
   .p-add-btn {
     display: ruby;
     position: relative;
-    top: -12px;
+    top: 50px;
   }body,html{
     overflow-x: hidden;
   }.items-container{
