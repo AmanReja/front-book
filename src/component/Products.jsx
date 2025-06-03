@@ -3,15 +3,17 @@ import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert2";
 import { React, useContext, useEffect, useState } from "react";
 import right from "../assets/icons/right.png";
-import Searchcontext from "./Context/Searchcontext";
+
 import cartcontext from "./Context/cartcontext";
 import { Bounce } from "react-awesome-reveal";
 import "./Products.css";
 import { NavLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import Getallcart from "./Context/Getallcart";
+import Searchcontext from "./Context/Searchcontext";
 
 function Products() {
+  const { search, setSearch } = useContext(Searchcontext);
   const navigate = useNavigate();
   const getAllcart = useContext(Getallcart);
   const base_url = "https://book-backend-ust3.onrender.com";
@@ -20,6 +22,7 @@ function Products() {
   const [userdata, setUserdata] = useState([]);
   const [currentpage, setCurrentpage] = useState(1);
   const [postprepage, setpostPrepage] = useState(3);
+  console.log("search", search);
 
   useEffect(() => {
     if (localStorage.getItem("user")) {
@@ -69,17 +72,15 @@ function Products() {
     }
   };
 
-  const searcher = useContext(Searchcontext);
-
   async function getProducts() {
-    const response = await fetch(`${base_url}/seller/getAllBooks/${searcher}`);
+    const response = await fetch(`${base_url}/seller/getAllBooks/${search}`);
     const data = await response.json();
     setProducts(data);
   }
 
   useEffect(() => {
     getProducts();
-  }, []);
+  }, [search]);
 
   const lastpostindex = currentpage * postprepage;
   const firstpostindex = lastpostindex - postprepage;
@@ -107,6 +108,8 @@ function Products() {
                   <h5 className="font-manrope font-semibold text-2xl leading-9 text-lime-300 ">
                     $ {item.price}{" "}
                   </h5>
+                  <h1>{search.value}</h1>
+
                   <span className="ml-3 font-semibold text-lg text-white">
                     {item.offer}% off
                   </span>

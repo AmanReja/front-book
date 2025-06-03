@@ -11,12 +11,13 @@ import Signinadmin from "./component/Signinadmin.jsx";
 import Loginadmin from "./component/Loginadmin.jsx";
 import Cart from "./component/Cart.jsx";
 import Profileset from "./component/Profileset.jsx";
+import { SearchProvider } from "./component/Context/Searchcontext.jsx";
 
 import {
   createBrowserRouter,
   createRoutesFromElements,
   Route,
-  RouterProvider
+  RouterProvider,
 } from "react-router-dom";
 import Register from "./component/Register.jsx";
 
@@ -37,5 +38,7 @@ const router = createBrowserRouter(
 );
 
 createRoot(document.getElementById("root")).render(
-  <RouterProvider router={router} />
+  <SearchProvider>
+    <RouterProvider router={router} />
+  </SearchProvider>
 );

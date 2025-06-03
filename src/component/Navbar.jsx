@@ -4,11 +4,15 @@ import { Link } from "react-router-dom";
 
 import cartcontext from "./Context/cartcontext";
 import userpng from "../assets/icons/user.png";
-
+import Searchcontext from "./Context/Searchcontext";
 import Loginbtn from "./Loginbtn";
 
-function Navbar({ searchHandelar }) {
+function Navbar() {
+  const { search, setSearch } = useContext(Searchcontext);
+
   const value = useContext(cartcontext);
+
+  // console.log(15, search);
 
   const user_menu = document.querySelector("#user-menu-button");
   const menu_buttons = document.querySelector("#menu-buttons");
@@ -186,6 +190,9 @@ function Navbar({ searchHandelar }) {
             >
               <input
                 placeholder="Search here"
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                }}
                 type="text"
                 className={`transition-all duration-300 outline-none absolute top-[50px] right-[50px] bg-white z-10
                  ${openinp ? "w-[200px] h-[40px]  text-black " : " h-[0]"}`}

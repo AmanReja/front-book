@@ -5,18 +5,20 @@ import Footer from "./Footer";
 import Herobanner from "./Herobanner";
 import Slider from "./Slider";
 import Dashboard from "./Dashboard";
-import Searchcontext from "./Context/Searchcontext";
+
 import Loader from "./Loader";
 import { ToastContainer } from "react-toastify";
 import Midfooter from "./Midfooter";
+import Searchcontext from "./Context/Searchcontext";
 
 function Home() {
   const base_url = "https://book-backend-ust3.onrender.com";
-  const searcher = useContext(Searchcontext);
+  const { search, setSearch } = useContext(Searchcontext);
+
   const [product, setProducts] = useState([]);
   const [load, setLoad] = useState(true);
   async function getProducts() {
-    const response = await fetch(`${base_url}/seller/getAllBooks/${searcher}`);
+    const response = await fetch(`${base_url}/seller/getAllBooks/${search}`);
     const data = await response.json();
 
     setProducts(data);

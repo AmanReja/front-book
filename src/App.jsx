@@ -14,7 +14,7 @@ import Login from "./component/Login";
 import Register from "./component/Register";
 import Dashboard from "./component/Dashboard";
 import Editproducts from "./component/Editproducts";
-import Searchcontext from "./component/Context/Searchcontext";
+
 import Productcotext from "./component/Context/Productcotext";
 import cartcontext from "./component/Context/cartcontext";
 import Cart from "./component/Cart";
@@ -51,29 +51,27 @@ function App() {
       <ToastContainer></ToastContainer>{" "}
       <Getallcart.Provider value={getallcartitem}>
         <cartcontext.Provider value={{ cart, setCart }}>
-          <Searchcontext.Provider value={search}>
-            <Navbar
-              searchHandelar={handelchange}
-              open={open}
-              setOpen={setOpen}
-            ></Navbar>
-            {/* <Navtest></Navtest> */}
+          <Navbar
+            searchHandelar={handelchange}
+            open={open}
+            setOpen={setOpen}
+          ></Navbar>
+          {/* <Navtest></Navtest> */}
 
-            <Outlet>
-              <Products
-                getallcartitem={getallcartitem}
-                search={search}
-                setSearch={setSearch}
-              />
-              <Home search={search} setSearch={setSearch} />
-              <Login></Login>
-              <Register></Register>
-              <Editproducts></Editproducts>
-              <Cart></Cart>
-              <Profileset></Profileset>
-            </Outlet>
-            <Footer></Footer>
-          </Searchcontext.Provider>
+          <Outlet>
+            <Products
+              getallcartitem={getallcartitem}
+              search={search}
+              setSearch={setSearch}
+            />
+            <Home search={search} setSearch={setSearch} />
+            <Login></Login>
+            <Register></Register>
+            <Editproducts></Editproducts>
+            <Cart></Cart>
+            <Profileset></Profileset>
+          </Outlet>
+          <Footer></Footer>
         </cartcontext.Provider>
       </Getallcart.Provider>
     </>

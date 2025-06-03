@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import Productcotext from "./Context/Productcotext";
-import Searchcontext from "./Context/Searchcontext";
+
 import "./Editproducts.css";
 import Dashboard from "./Dashboard";
 import axios from "axios";
@@ -14,7 +14,6 @@ function Editproducts() {
   const [load, setLoad] = useState(true);
   const base_url = "https://book-backend-ust3.onrender.com";
   // const products = useContext(Productcotext);
-  const searcher = useContext(Searchcontext);
 
   const [product, setProducts] = useState([]);
   async function getProducts() {

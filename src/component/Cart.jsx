@@ -1,6 +1,6 @@
 import { React, useContext, useEffect, useState, useRef } from "react";
 import cartcontext from "./Context/cartcontext";
-import Searchcontext from "./Context/Searchcontext";
+import Searchcontext from "./Context/SearchContext";
 import "./Cart.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
