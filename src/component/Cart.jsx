@@ -14,7 +14,7 @@ function Cart() {
   const getAllcart = useContext(Getallcart);
   const cartvalue = useContext(cartcontext);
   const [rezPayid, setRezPayid] = useState("");
-  const base_url = "https://back-book-zct1.onrender.com";
+  const base_url = "https://book-backend-ust3.onrender.com";
 
   console.log(18, cartvalue.cart);
 
@@ -23,7 +23,7 @@ function Cart() {
   const formatdate = date.toLocaleDateString("en-US", {
     day: "numeric",
     month: "long",
-    year: "numeric"
+    year: "numeric",
   });
 
   const value = useContext(cartcontext);
@@ -61,13 +61,13 @@ function Cart() {
       quantity: value.cart.length,
       brandimage:
         "https://images.shiksha.com/mediadata/images/1626695443phppjGnqq.jpeg",
-      razorpayid: ""
+      razorpayid: "",
     };
 
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(addpayment)
+      body: JSON.stringify(addpayment),
     };
     const response = await fetch(
       `${base_url}/pay/createPayment`,
@@ -89,7 +89,7 @@ function Cart() {
       handler: function (response) {
         setRezPayid(response.razorpay_payment_id);
         paySuccess(response.razorpay_payment_id, data._id, data.amount);
-      }
+      },
     };
 
     var rzp1 = new window.Razorpay(options);
@@ -101,13 +101,13 @@ function Cart() {
   const paySuccess = async (rid, _id, amount) => {
     const successpayment = {
       razorpayid: rid,
-      status: "Success"
+      status: "Success",
     };
 
     const requestOptions = {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(successpayment)
+      body: JSON.stringify(successpayment),
     };
     const response = await fetch(
       `${base_url}/pay/sucessPayment/${_id}`,
@@ -119,7 +119,7 @@ function Cart() {
       Swal.fire({
         title: "Good job!",
         text: "payment succssful!",
-        icon: "success"
+        icon: "success",
       }).then(async (result) => {
         console.log("valu of cart", cartvalue.cart);
 
@@ -134,7 +134,7 @@ function Cart() {
             quantity: single_item.quantity,
             bookimage: single_item.bookimage,
             authore: single_item.authore,
-            offer: single_item.offer
+            offer: single_item.offer,
           };
           items.push(temp);
         }
@@ -142,7 +142,7 @@ function Cart() {
           userid: cartvalue.cart[0].userid,
           totalamount: amount,
           itemquantity: cartvalue.cart.length,
-          items: items // Assuming each `items[0]` contains valid details
+          items: items, // Assuming each `items[0]` contains valid details
         };
 
         console.log("Payload for addOrder API:", new_cart);
@@ -168,7 +168,7 @@ function Cart() {
             Swal.fire({
               title: "orders are added to order schema",
               text: "payment succssful!",
-              icon: "success"
+              icon: "success",
             });
             console.log("Add Order Response:", mydata);
             window.location.reload();
@@ -207,13 +207,13 @@ function Cart() {
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!"
+      confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
         const requestOptions = {
           method: "delete",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(p)
+          body: JSON.stringify(p),
         };
 
         const response = await fetch(
@@ -228,7 +228,7 @@ function Cart() {
         Swal.fire({
           title: "Deleted!",
           text: "Your file has been deleted.",
-          icon: "success"
+          icon: "success",
         });
         await getAllcart();
       }
@@ -250,8 +250,8 @@ function Cart() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           itemId: cart.items[0]._id, // Pass item ID
-          quantity: updatedQuantity // Pass updated quantity
-        })
+          quantity: updatedQuantity, // Pass updated quantity
+        }),
       };
 
       const response = await fetch(
@@ -263,7 +263,7 @@ function Cart() {
       Swal.fire({
         title: "Error",
         text: "Something went wrong.",
-        icon: "error"
+        icon: "error",
       });
     }
     await getAllcart();
@@ -279,8 +279,8 @@ function Cart() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           itemId: cart.items[0]._id, // Pass item ID
-          quantity: updatedQuantity // Pass updated quantity
-        })
+          quantity: updatedQuantity, // Pass updated quantity
+        }),
       };
 
       const response = await fetch(
@@ -292,7 +292,7 @@ function Cart() {
       Swal.fire({
         title: "Error",
         text: "Something went wrong.",
-        icon: "error"
+        icon: "error",
       });
     }
     await getAllcart();

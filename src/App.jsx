@@ -28,7 +28,7 @@ function App() {
   const [open, setOpen] = useState(true);
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState([]);
-  const base_url = "https://back-book-zct1.onrender.com";
+  const base_url = "https://book-backend-ust3.onrender.com";
 
   const getallcartitem = async () => {
     const userid = JSON.parse(localStorage.getItem("user")) || {};

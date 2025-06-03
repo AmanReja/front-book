@@ -12,7 +12,7 @@ import Swal from "sweetalert2";
 function Editproducts() {
   const [imgload, setImgLoad] = useState(false);
   const [load, setLoad] = useState(true);
-  const base_url = "https://bookapp-3e2d.onrender.com";
+  const base_url = "https://book-backend-ust3.onrender.com";
   // const products = useContext(Productcotext);
   const searcher = useContext(Searchcontext);
 
@@ -85,13 +85,13 @@ function Editproducts() {
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!"
+      confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
         const requestOptions = {
           method: "delete",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(item)
+          body: JSON.stringify(item),
         };
 
         const response = await fetch(
@@ -105,7 +105,7 @@ function Editproducts() {
         Swal.fire({
           title: "Deleted!",
           text: "Your file has been deleted.",
-          icon: "success"
+          icon: "success",
         });
       }
     });
@@ -127,7 +127,7 @@ function Editproducts() {
     const requestOptions = {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editedItem)
+      body: JSON.stringify(editedItem),
     };
     const response = await fetch(
       `${base_url}/seller/updateBook/${editedItem._id}`,
@@ -139,7 +139,7 @@ function Editproducts() {
 
     if (response.ok) {
       toast("Your product hasbeen updated", {
-        theme: "dark"
+        theme: "dark",
       });
     } else {
       toast.error("Your new product addition failed", { theme: "dark" });
@@ -205,7 +205,7 @@ function Editproducts() {
                             onChange={(e) => {
                               setEditedItem({
                                 ...editedItem,
-                                bookname: e.target.value
+                                bookname: e.target.value,
                               });
                             }}
                             type="text"
@@ -228,7 +228,7 @@ function Editproducts() {
                             onChange={(e) => {
                               setEditedItem({
                                 ...editedItem,
-                                price: e.target.value
+                                price: e.target.value,
                               });
                             }}
                             type="number"
@@ -251,7 +251,7 @@ function Editproducts() {
                             onChange={(e) => {
                               setEditedItem({
                                 ...editedItem,
-                                quantity: e.target.value
+                                quantity: e.target.value,
                               });
                             }}
                             type="number"
@@ -274,7 +274,7 @@ function Editproducts() {
                             onChange={(e) => {
                               setEditedItem({
                                 ...editedItem,
-                                rating: e.target.value
+                                rating: e.target.value,
                               });
                             }}
                             id="category"
@@ -301,7 +301,7 @@ function Editproducts() {
                             onChange={(e) => {
                               setEditedItem({
                                 ...editedItem,
-                                authore: e.target.value
+                                authore: e.target.value,
                               });
                               // console.log(33);
                             }}
@@ -325,7 +325,7 @@ function Editproducts() {
                             onChange={(e) => {
                               setEditedItem({
                                 ...editedItem,
-                                offer: e.target.value
+                                offer: e.target.value,
                               });
                             }}
                             type="number"

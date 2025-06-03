@@ -7,7 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function Register() {
-  const base_url = "https://back-book-zct1.onrender.com";
+  const base_url = "https://book-backend-ust3.onrender.com";
   const [email, setEmail] = useState("");
   const [number, setNumber] = useState("");
   const [pass, setPass] = useState("");
@@ -17,21 +17,21 @@ function Register() {
     const new_user = {
       userid: email,
       contact: number,
-      password: pass
+      password: pass,
     };
     console.log(new_user);
 
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(new_user)
+      body: JSON.stringify(new_user),
     };
     const response = await fetch(`${base_url}/user/addUser`, requestOptions);
     const data = await response.json();
 
     if (data._id != null) {
       toast.success("You are successfully registered", {
-        theme: "dark"
+        theme: "dark",
       });
     } else {
       toast.error("Registration failed", { theme: "dark" });

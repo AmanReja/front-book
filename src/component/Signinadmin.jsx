@@ -7,7 +7,7 @@ import "../App.css";
 import "./Admin.css";
 
 function Signinadmin() {
-  const base_url = "https://back-book-zct1.onrender.com";
+  const base_url = "https://book-backend-ust3.onrender.com";
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [phone, setPhone] = useState("");
@@ -18,14 +18,14 @@ function Signinadmin() {
     const new_admin = {
       adminid: email,
       admincontact: phone,
-      adminpassword: pass
+      adminpassword: pass,
     };
     console.log(new_admin);
 
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(new_admin)
+      body: JSON.stringify(new_admin),
     };
     const response = await fetch(`${base_url}/admin/addAdmin`, requestOptions);
     const data = await response.json();
@@ -33,7 +33,7 @@ function Signinadmin() {
     if (data._id != null) {
       toast(`Dear ${data.adminid} you are successfully registered`, {
         theme: "dark",
-        className: "foo"
+        className: "foo",
       });
     } else {
       toast.error("Registration failed", { theme: "dark" });

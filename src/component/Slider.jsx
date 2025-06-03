@@ -4,7 +4,7 @@ import "./Slider.css";
 import { BsChevronCompactLeft, BsChevronCompactRight } from "react-icons/bs";
 
 function Slider() {
-  const base_url = "https://back-book-zct1.onrender.com";
+  const base_url = "https://book-backend-ust3.onrender.com";
   const [product, setProducts] = useState([]);
 
   // console.log(10, search);
@@ -61,7 +61,7 @@ function Slider() {
       <div className="aman max w-[1400]px top-[40px] h-[700px] w-full m-auto py-20 px-20 absolute z-1">
         <div
           style={{
-            backgroundImage: `url(${product[currentIndex]?.bookimage})`
+            backgroundImage: `url(${product[currentIndex]?.bookimage})`,
           }}
           className="box w-[350px] h-full rounded-2xl bg-center bg-cover duration-[0.2s] "
         ></div>
