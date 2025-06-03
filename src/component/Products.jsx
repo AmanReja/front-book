@@ -14,7 +14,7 @@ import Getallcart from "./Context/Getallcart";
 function Products() {
   const navigate = useNavigate();
   const getAllcart = useContext(Getallcart);
-  const base_url = "https://back-book-zct1.onrender.com";
+  const base_url = "https://book-backend-ust3.onrender.com";
   const value = useContext(cartcontext);
   const [product, setProducts] = useState([]);
   const [userdata, setUserdata] = useState([]);
@@ -32,7 +32,7 @@ function Products() {
     if (!localStorage.getItem("user")) {
       Swal.fire({
         title: "You have to login first",
-        icon: "warning"
+        icon: "warning",
       });
       navigate("/login");
     } else {
@@ -43,13 +43,13 @@ function Products() {
         price: item.price,
         bookimage: item.bookimage,
         authore: item.authore,
-        offer: item.offer
+        offer: item.offer,
       };
 
       const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(new_cart)
+        body: JSON.stringify(new_cart),
       };
 
       const response = await fetch(`${base_url}/cart/addCart`, requestOptions);
@@ -58,12 +58,12 @@ function Products() {
       if (data._id) {
         Swal.fire({
           title: `${item.bookname} is added to your cart`,
-          icon: "success"
+          icon: "success",
         });
         await getAllcart();
       } else {
         toast.error(`Failed to add to cart`, {
-          theme: "dark"
+          theme: "dark",
         });
       }
     }
