@@ -36,6 +36,10 @@ function Login() {
 
     console.log(33, data.length);
 
+    if (response == 200) {
+      toast.success("login successfull");
+    }
+
     if (data.length == 0) {
       toast.error("login failed", { theme: "dark" });
     } else {
@@ -43,7 +47,6 @@ function Login() {
 
       localStorage.setItem("id", data[0]._id);
       localStorage.setItem("user", JSON.stringify(data[0]));
-      toast.success("login successfull");
 
       Navigate("/");
       window.location.reload();
@@ -82,6 +85,7 @@ function Login() {
                 </h1>
                 <br />
                 <input
+                  value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
                   }}
@@ -91,6 +95,7 @@ function Login() {
                   placeholder="email"
                 />
                 <input
+                  value={pass}
                   required
                   onChange={(e) => {
                     setPass(e.target.value);
