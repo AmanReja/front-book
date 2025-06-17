@@ -1,6 +1,6 @@
 import { React, useContext, useEffect, useState, useRef } from "react";
 import cartcontext from "./Context/cartcontext";
-import Searchcontext from "./Context/SearchContext";
+
 import "./Cart.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -18,7 +18,6 @@ function Cart() {
 
   console.log(18, cartvalue.cart);
 
-  const searcher = useContext(Searchcontext);
   const date = new Date();
   const formatdate = date.toLocaleDateString("en-US", {
     day: "numeric",
