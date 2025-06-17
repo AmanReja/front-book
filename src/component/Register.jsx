@@ -73,6 +73,7 @@ function Register() {
                 </h1>
                 <br />
                 <input
+                  value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
                   }}
@@ -82,6 +83,7 @@ function Register() {
                   placeholder="email"
                 />
                 <input
+                  value={number}
                   onChange={(e) => {
                     setNumber(e.target.value);
                   }}
@@ -91,6 +93,7 @@ function Register() {
                   placeholder="number"
                 />
                 <input
+                  value={pass}
                   required
                   onChange={(e) => {
                     setPass(e.target.value);
