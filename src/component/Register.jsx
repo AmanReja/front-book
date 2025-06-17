@@ -5,8 +5,10 @@ import "./Register.css";
 import ScrollReveal from "scrollreveal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
+  const navigate = useNavigate();
   const base_url = "https://book-backend-ust3.onrender.com";
   const [email, setEmail] = useState("");
   const [number, setNumber] = useState("");
@@ -33,6 +35,7 @@ function Register() {
       toast.success("You are successfully registered", {
         theme: "dark",
       });
+      navigate("/");
     } else {
       toast.error("Registration failed", { theme: "dark" });
     }

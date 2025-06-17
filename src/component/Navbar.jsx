@@ -63,6 +63,8 @@ function Navbar() {
   // }
   const getoneuser = async () => {
     const userid = JSON.parse(localStorage.getItem("user")) || {};
+    console.log(33, userid);
+
     const userdomain = userid._id;
     const response = await fetch(`${base_url}/user/getUser/${userdomain}`);
     const data = await response.json();
