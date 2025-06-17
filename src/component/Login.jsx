@@ -21,15 +21,11 @@ function Login() {
   console.log(pass, email);
 
   const login_user = async (e) => {
-    alert("54");
     e.preventDefault();
     const new_user = {
       userid: email,
       password: pass,
     };
-
-    console.log(new_user);
-
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -38,7 +34,7 @@ function Login() {
     const response = await fetch(`${base_url}/user/loginUser`, requestOptions);
     const data = await response.json();
 
-    console.log(33, data);
+    console.log(33, data.length);
 
     if (data.length !== 0) {
       Swal.fire({
@@ -47,6 +43,8 @@ function Login() {
         icon: "success",
       });
       Navigate("/");
+      localStorage.setItem("id", data[0]._id);
+      localStorage.setItem("user", JSON.stringify(data[0]));
     } else {
       Swal.fire({
         title: "wrong credentials",
