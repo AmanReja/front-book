@@ -21,11 +21,15 @@ function Login() {
   console.log(pass, email);
 
   const login_user = async (e) => {
+    alert("54");
     e.preventDefault();
     const new_user = {
       userid: email,
       password: pass,
     };
+
+    console.log(new_user);
+
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -34,24 +38,21 @@ function Login() {
     const response = await fetch(`${base_url}/user/loginUser`, requestOptions);
     const data = await response.json();
 
-    console.log(33, data.length);
+    console.log(33, data);
 
-    if (response == 200) {
-      toast.success("login successfull");
-    }
+    if (data.length !== 0) {
+      Swal.fire({
+        title: "login successfull",
 
-    if (data.length == 0) {
-      toast.error("login failed", { theme: "dark" });
-    } else {
-      console.log(2, data);
-
-      localStorage.setItem("id", data[0]._id);
-      localStorage.setItem("user", JSON.stringify(data[0]));
-
+        icon: "success",
+      });
       Navigate("/");
-      window.location.reload();
-      setEmail("");
-      setPass("");
+    } else {
+      Swal.fire({
+        title: "wrong credentials",
+        text: "try again",
+        icon: "error",
+      });
     }
   };
 

@@ -8,7 +8,7 @@ import "./Admin.css";
 // "http://localhost:3000/admin/loginAdmin",
 
 function Loginadmin() {
-  const base_url = "https://bookapp-3e2d.onrender.com";
+  const base_url = "https://book-backend-ust3.onrender.com";
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const Navigate = useNavigate();
@@ -16,12 +16,12 @@ function Loginadmin() {
   const login_admin = async () => {
     const new_admin = {
       adminid: email,
-      adminpassword: pass
+      adminpassword: pass,
     };
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(new_admin)
+      body: JSON.stringify(new_admin),
     };
     const response = await fetch(
       `${base_url}/admin/loginAdmin`,
