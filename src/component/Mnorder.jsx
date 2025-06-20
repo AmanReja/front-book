@@ -8,7 +8,7 @@ import Loader from "./Loader";
 import "./Mnorder.css";
 
 function Mnorder() {
-  const base_url = "https://bookapp-3e2d.onrender.com";
+  const base_url = "https://book-backend-ust3.onrender.com";
   const [load, setLoad] = useState(false);
   // const [bookid, setBookid] = useState("");
   const [bookname, setBookname] = useState("");
@@ -66,7 +66,7 @@ function Mnorder() {
       rating: bookrating,
       offer: bookoffer,
       bookimage: bookimage,
-      bookimageid: bookimageid
+      bookimageid: bookimageid,
     };
     console.log(new_product);
 
@@ -76,7 +76,7 @@ function Mnorder() {
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(new_product)
+      body: JSON.stringify(new_product),
     };
     const response = await fetch(`${base_url}/seller/addBook`, requestOptions);
     const data = await response.json();
@@ -85,7 +85,7 @@ function Mnorder() {
 
     if (data._id != null) {
       toast("You new product has added", {
-        theme: "dark"
+        theme: "dark",
       });
     } else {
       toast.error("Your new product addition failed", { theme: "dark" });

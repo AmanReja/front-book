@@ -15,7 +15,7 @@ const Profileset = () => {
   const [fileload, setFileload] = useState(false);
   const [load, setLoad] = useState(false);
   const [user, setUser] = useState([]);
-  const base_url = "https://back-book-zct1.onrender.com";
+  const base_url = "https://book-backend-ust3.onrender.com";
   const handelshow = () => {
     setShow((prev) => !prev);
   };
@@ -74,7 +74,7 @@ const Profileset = () => {
     const requestOptions = {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(user)
+      body: JSON.stringify(user),
     };
     const response = await fetch(
       `${base_url}/user/updateUser/${user._id}`,
@@ -87,7 +87,7 @@ const Profileset = () => {
       Swal.fire({
         title: "Succesfully Updated",
 
-        icon: "success"
+        icon: "success",
       });
       window.location.reload();
     } else {
@@ -104,7 +104,7 @@ const Profileset = () => {
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!"
+      confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
         localStorage.clear("user");
@@ -112,7 +112,7 @@ const Profileset = () => {
         const requestOptions = {
           method: "DELETE",
           headers: { "content-Type": "application/json" },
-          body: JSON.stringify(user)
+          body: JSON.stringify(user),
         };
         const response = await fetch(
           `${base_url}/user/deleteUser/${user._id}`,
@@ -125,7 +125,7 @@ const Profileset = () => {
           Swal.fire({
             title: "Good job!",
             text: "You have succesfully deleted your account",
-            icon: "success"
+            icon: "success",
           });
         } else {
           toast.error("Bad request", { theme: "dark" });
@@ -133,7 +133,7 @@ const Profileset = () => {
         Swal.fire({
           title: "Deleted!",
           text: "Your file has been deleted.",
-          icon: "success"
+          icon: "success",
         });
       }
     });

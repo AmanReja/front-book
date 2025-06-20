@@ -8,8 +8,10 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Loader from "./Loader";
 import Swal from "sweetalert2";
+import Searchcontext from "./Context/Searchcontext";
 
 function Editproducts() {
+  const { search, Setsearch } = useContext(Searchcontext);
   const [imgload, setImgLoad] = useState(false);
   const [load, setLoad] = useState(true);
   const base_url = "https://book-backend-ust3.onrender.com";
@@ -17,7 +19,7 @@ function Editproducts() {
 
   const [product, setProducts] = useState([]);
   async function getProducts() {
-    const response = await fetch(`${base_url}/seller/getAllBooks/${searcher}`);
+    const response = await fetch(`${base_url}/seller/getAllBooks/${search}`);
     const data = await response.json();
     // const items = data.items;
 
@@ -27,7 +29,7 @@ function Editproducts() {
 
   useEffect(() => {
     getProducts();
-  }, [product]);
+  }, [search]);
 
   const [displayform, setDisplayform] = useState(true);
 

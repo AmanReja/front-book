@@ -23,7 +23,7 @@ function Navbar() {
   const [pcheck, setPcheck] = useState(false);
   const [userdata, setUserdata] = useState("");
   const [user, setUser] = useState([]);
-  const base_url = "https://back-book-zct1.onrender.com";
+  const base_url = "https://book-backend-ust3.onrender.com";
 
   const handelpcheck = () => {
     setPcheck((prev) => !prev);
@@ -115,7 +115,12 @@ function Navbar() {
             </div>
             <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
               <div className="flex shrink-0 items-center">
-                <h3 className="logo text-3xl">MY LOGO </h3>
+                <h3 className="logo text-3xl font-bold">
+                  Nov
+                  <span style={{ fontFamily: "montserrat", color: "#f5710c" }}>
+                    elity
+                  </span>
+                </h3>
               </div>
               <div className="hidden sm:ml-6 sm:block">
                 <div className=" relative top-[10px] flex space-x-4">
