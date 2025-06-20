@@ -117,7 +117,7 @@ function Navbar() {
               <div className="flex shrink-0 items-center">
                 <h3 className="logo text-3xl font-bold">
                   Nov
-                  <span style={{ fontFamily: "montserrat", color: "#f5710c" }}>
+                  <span className="font-bold" style={{ color: "#f5710c" }}>
                     elity
                   </span>
                 </h3>
