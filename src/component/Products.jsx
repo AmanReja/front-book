@@ -25,9 +25,15 @@ function Products() {
   console.log("search", search);
 
   useEffect(() => {
-    if (localStorage.getItem("user")) {
-      const newuser = JSON.parse(localStorage.getItem("user")) || {};
-      setUserdata(newuser);
+    try {
+      const stored = localStorage.getItem("user");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setUserdata(parsed);
+      }
+    } catch (err) {
+      console.error("Invalid JSON in localStorage:", err);
+      localStorage.removeItem("user"); // prevent repeated errors
     }
   }, []);
 
