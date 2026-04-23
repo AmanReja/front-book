@@ -1,278 +1,465 @@
-import React, { useEffect, useState, useContext } from "react";
-import "./Navbar.css";
-import { Link } from "react-router-dom";
+import { useEffect, useState, useContext, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
 import cartcontext from "./Context/cartcontext";
 import userpng from "../assets/icons/user.png";
 import Searchcontext from "./Context/Searchcontext";
 import Loginbtn from "./Loginbtn";
 
+/* ─── Font + keyframe injection ────────────────────────────────────────────── */
+const injectAssets = () => {
+  if (!document.getElementById("bs-fonts")) {
+    const link = document.createElement("link");
+    link.id = "bs-fonts";
+    link.rel = "stylesheet";
+    link.href =
+      "https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap";
+    document.head.appendChild(link);
+  }
+  if (!document.getElementById("bs-nav-kf")) {
+    const style = document.createElement("style");
+    style.id = "bs-nav-kf";
+    style.textContent = `
+      @keyframes bs-dropdown-in {
+        from { opacity: 0; transform: translateY(-8px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes bs-mobile-in {
+        from { opacity: 0; transform: translateY(-6px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes bs-search-expand {
+        from { width: 0; opacity: 0; }
+        to   { width: 200px; opacity: 1; }
+      }
+      .bs-nav-link {
+        font-size: 13px;
+        color: rgba(245,240,232,0.45);
+        text-decoration: none;
+        padding: 5px 12px;
+        border-radius: 20px;
+        border: 0.5px solid transparent;
+        transition: color 0.15s, background 0.15s, border-color 0.15s;
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 400;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+      }
+      .bs-nav-link:hover {
+        color: #f5f0e8 !important;
+        background: rgba(245,240,232,0.07);
+        border-color: rgba(245,240,232,0.12);
+      }
+      .bs-nav-link.active {
+        color: #f5f0e8 !important;
+        background: rgba(245,240,232,0.09);
+        border-color: rgba(245,240,232,0.14);
+      }
+      .bs-dropdown-item {
+        width: 100%;
+        background: none;
+        border: none;
+        text-align: left;
+        padding: 8px 12px;
+        font-size: 13px;
+        font-family: 'DM Sans', sans-serif;
+        color: rgba(245,240,232,0.55);
+        cursor: pointer;
+        border-radius: 8px;
+        transition: background 0.15s, color 0.15s;
+        text-decoration: none;
+        display: block;
+      }
+      .bs-dropdown-item:hover {
+        background: rgba(245,240,232,0.07);
+        color: #f5f0e8;
+      }
+      .bs-search-input {
+        background: rgba(245,240,232,0.07);
+        border: 0.5px solid rgba(245,240,232,0.15);
+        border-radius: 8px;
+        color: #f5f0e8;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        padding: 7px 12px;
+        outline: none;
+        transition: border-color 0.2s, background 0.2s;
+        animation: bs-search-expand 0.2s ease;
+      }
+      .bs-search-input::placeholder { color: rgba(245,240,232,0.25); }
+      .bs-search-input:focus {
+        border-color: rgba(245,240,232,0.35);
+        background: rgba(245,240,232,0.1);
+      }
+      .bs-mobile-link {
+        display: block;
+        padding: 10px 14px;
+        font-size: 14px;
+        font-family: 'DM Sans', sans-serif;
+        color: rgba(245,240,232,0.55);
+        text-decoration: none;
+        border-radius: 10px;
+        transition: background 0.15s, color 0.15s;
+      }
+      .bs-mobile-link:hover { background: rgba(245,240,232,0.07); color: #f5f0e8; }
+    `;
+    document.head.appendChild(style);
+  }
+};
+
+/* ─── Cart badge ────────────────────────────────────────────────────────────── */
+function CartBadge({ count }) {
+  if (!count) return null;
+  return (
+    <span style={{
+      position: "absolute",
+      top: "-5px", right: "-5px",
+      background: "#c0392b",
+      color: "#fff",
+      fontSize: "10px",
+      fontWeight: 600,
+      width: "17px", height: "17px",
+      borderRadius: "50%",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontFamily: "'DM Sans', sans-serif",
+      border: "1.5px solid #0f0f0f",
+    }}>
+      {count > 9 ? "9+" : count}
+    </span>
+  );
+}
+
+/* ─── Navbar ─────────────────────────────────────────────────────────────────── */
 function Navbar() {
+  injectAssets();
   const { search, setSearch } = useContext(Searchcontext);
   const value = useContext(cartcontext);
+  const location = useLocation();
 
-  const [open, setOpen] = useState(true);
-  const [openinp, setOpeninp] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [flag, setFlag] = useState(true);
-  const [pcheck, setPcheck] = useState(false);
-  const [userdata, setUserdata] = useState(null);
   const [user, setUser] = useState({});
   const base_url = "https://book-backend-ust3.onrender.com";
+  const dropdownRef = useRef(null);
+  const searchRef = useRef(null);
 
-  // ✅ Toggle profile dropdown
-  const handelpcheck = () => {
-    setPcheck((prev) => !prev);
-  };
+  const isActive = (path) => location.pathname === path;
 
-  // ✅ Clear user data safely
-  const handeldataremove = () => {
-    localStorage.removeItem("user");
-    window.location.reload();
-  };
+  /* close dropdown on outside click */
+  useEffect(() => {
+    const handler = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target))
+        setDropdownOpen(false);
+      if (searchRef.current && !searchRef.current.contains(e.target))
+        setSearchOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
-  // ✅ Toggle mobile menu
-  const show = () => {
-    setOpen((prev) => !prev);
-  };
-
-  // ✅ Toggle search input visibility
-  const openInput = () => {
-    setOpeninp((prev) => !prev);
-  };
-
-  // ✅ Safe user fetch function
   const getoneuser = async () => {
     const storedUser = localStorage.getItem("user");
-    if (!storedUser) {
-      console.warn("No user found in localStorage.");
-      return;
-    }
-
-    let userdomain = null;
+    if (!storedUser) return;
     try {
-      const parsedUser = JSON.parse(storedUser);
-      userdomain = parsedUser?._id;
-      if (!userdomain) return;
-    } catch (error) {
-      console.error("Invalid JSON in localStorage:", error);
-      return;
-    }
-
-    try {
-      const response = await fetch(`${base_url}/user/getUser/${userdomain}`);
-      if (!response.ok) throw new Error("Failed to fetch user");
-      const data = await response.json();
-      setUser(data);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-    }
+      const parsed = JSON.parse(storedUser);
+      const id = parsed?._id;
+      if (!id) return;
+      const res = await fetch(`${base_url}/user/getUser/${id}`);
+      if (!res.ok) return;
+      setUser(await res.json());
+    } catch { /* silent */ }
   };
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
-        const parsed = JSON.parse(storedUser);
-        setUserdata(parsed);
+        JSON.parse(storedUser);
         setFlag(false);
-      } catch (error) {
-        console.error("Error parsing stored user:", error);
-      }
+      } catch { /* silent */ }
     }
     getoneuser();
   }, [flag]);
 
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setDropdownOpen(false);
+    window.location.reload();
+  };
+
   return (
     <>
-      <nav className="bg-gray-800">
-        <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-          <div className="relative flex h-16 items-center justify-between">
-            {/* Mobile menu button */}
-            <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
-              <div
-                onClick={show}
-                className={`relative left-[-8px] items-center flex flex-col duration-300 transition-all justify-center ${
-                  !open ? "gap-[-3px]" : "gap-[9px]"
-                } w-[60px] h-[40px]`}
+      <nav style={{
+        background: "rgba(15,15,15,0.95)",
+        backdropFilter: "blur(12px)",
+        borderBottom: "0.5px solid rgba(245,240,232,0.08)",
+        position: "sticky",
+        top: 0,
+        zIndex: 100,
+        fontFamily: "'DM Sans', sans-serif",
+      }}>
+        <div style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: "0 1.5rem",
+          height: "60px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "1rem",
+        }}>
+
+          {/* ── Logo ── */}
+          <Link to="/" style={{ textDecoration: "none", flexShrink: 0 }}>
+            <span style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: "22px",
+              fontWeight: 400,
+              color: "#f5f0e8",
+              letterSpacing: "-0.3px",
+            }}>
+              Nov<span style={{ fontStyle: "italic", color: "rgba(245,240,232,0.4)" }}>elity</span>
+            </span>
+          </Link>
+
+          {/* ── Desktop links ── */}
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "2px",
+            flex: 1,
+            justifyContent: "center",
+          }}
+            className="bs-desktop-links"
+          >
+            {[
+              { label: "Home", path: "/" },
+              { label: "Dashboard", path: "/adminlogin" },
+              // { label: "Contact", path: "/contact" },
+            ].map(({ label, path }) => (
+              <Link
+                key={path}
+                to={path}
+                className={`bs-nav-link${isActive(path) ? " active" : ""}`}
               >
-                <div
-                  className={`bg-white w-[30px] h-[2px] duration-300 ${
-                    open ? "" : "rotate-45"
-                  }`}
-                ></div>
-                <div
-                  className={open ? "bg-white w-[30px]  h-[2px]" : "hidden"}
-                ></div>
-                <div
-                  className={`bg-white w-[30px] h-[2px] duration-300 ${
-                    open ? "" : "-rotate-45"
-                  }`}
-                ></div>
-              </div>
-            </div>
+                {label}
+              </Link>
+            ))}
+          </div>
 
-            {/* Logo */}
-            <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-              <div className="flex shrink-0 items-center">
-                <h3 className="logo text-3xl font-bold">
-                  Nov
-                  <span className="font-bold" style={{ color: "#f5710c" }}>
-                    elity
-                  </span>
-                </h3>
-              </div>
+          {/* ── Right cluster ── */}
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
 
-              {/* Desktop Links */}
-              <div className="hidden sm:ml-6 sm:block">
-                <div className="relative top-[10px] flex space-x-4">
-                  <Link to="#">
-                    <span className="erounded-md px-3 py-2 text-sm font-medium text-white hover:bg-lime-500">
-                      Dashboard
-                    </span>
-                  </Link>
-
-                  <Link to="/">
-                    <span className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
-                      Home
-                    </span>
-                  </Link>
-
-                  <Link to="#">
-                    <span className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
-                      Contact us
-                    </span>
-                  </Link>
-
-                  {/* Cart icon */}
-                  <Link className="the-cart" to="/cart">
-                    <i className="text-2xl fa-solid fa-cart-shopping"></i>
-                    <h3
-                      className={
-                        value.cart.length > 0
-                          ? "relative top-[-40px] left-[20px] w-[20px] text-center h-[20px] rounded bg-red-500"
-                          : "hidden"
-                      }
-                    >
-                      {value.cart.length}
-                    </h3>
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            {/* Search bar */}
-            <form className="flex items-center justify-between relative sm:r-0 right-[20px]">
-              <input
-                placeholder="Search here"
-                onChange={(e) => setSearch(e.target.value)}
-                type="text"
-                className={`transition-all duration-300 outline-none absolute top-[50px] right-[50px] bg-white z-10 ${
-                  openinp ? "w-[200px] h-[40px] text-black" : "h-[0]"
-                }`}
-              />
+            {/* Search */}
+            <div ref={searchRef} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              {searchOpen && (
+                <input
+                  autoFocus
+                  className="bs-search-input"
+                  placeholder="Search books…"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  style={{ width: "180px" }}
+                />
+              )}
               <button
-                className="bg-lime-400 w-[50px] rounded"
-                type="button"
-                onClick={openInput}
+                onClick={() => setSearchOpen((p) => !p)}
+                style={{
+                  width: "34px", height: "34px",
+                  borderRadius: "50%",
+                  border: "0.5px solid rgba(245,240,232,0.12)",
+                  background: searchOpen ? "rgba(245,240,232,0.1)" : "transparent",
+                  color: "rgba(245,240,232,0.55)",
+                  cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  transition: "background 0.15s, border-color 0.15s",
+                }}
+                title="Search"
               >
-                {!openinp ? (
-                  <i className="text-2xl fa-solid fa-magnifying-glass"></i>
+                {searchOpen ? (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
                 ) : (
-                  <i className="text-2xl fa-solid fa-xmark cross-icon"></i>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/>
+                  </svg>
                 )}
               </button>
-            </form>
+            </div>
 
-            {/* Profile */}
-            <div className="profile relative">
-              {flag ? (
-                <Link to="/login">
-                  <Loginbtn />
-                </Link>
-              ) : (
-                <div
-                  onClick={handelpcheck}
-                  className="w-[40px] h-[40px] cursor-pointer"
+            {/* Cart */}
+            <Link to="/cart" style={{ textDecoration: "none", position: "relative" }}>
+              <button style={{
+                width: "34px", height: "34px",
+                borderRadius: "50%",
+                border: "0.5px solid rgba(245,240,232,0.12)",
+                background: "transparent",
+                color: "rgba(245,240,232,0.55)",
+                cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                transition: "background 0.15s, color 0.15s",
+              }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(245,240,232,0.08)"; e.currentTarget.style.color = "#f5f0e8"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "rgba(245,240,232,0.55)"; }}
+                title="Cart"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                  <line x1="3" y1="6" x2="21" y2="6"/>
+                  <path d="M16 10a4 4 0 0 1-8 0"/>
+                </svg>
+                <CartBadge count={value.cart.length} />
+              </button>
+            </Link>
+
+            {/* Profile / Login */}
+            {flag ? (
+              <Link to="/login" style={{ textDecoration: "none" }}>
+                <Loginbtn />
+              </Link>
+            ) : (
+              <div ref={dropdownRef} style={{ position: "relative" }}>
+                <button
+                  onClick={() => setDropdownOpen((p) => !p)}
+                  style={{
+                    width: "34px", height: "34px",
+                    borderRadius: "50%",
+                    border: `1.5px solid ${dropdownOpen ? "rgba(245,240,232,0.4)" : "rgba(245,240,232,0.15)"}`,
+                    padding: 0,
+                    cursor: "pointer",
+                    overflow: "hidden",
+                    background: "#2a2a2a",
+                    transition: "border-color 0.2s",
+                  }}
+                  title="Profile"
                 >
                   <img
-                    className="w-full object-cover rounded-full h-full"
                     src={user?.image || userpng}
                     alt="user"
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
-                </div>
-              )}
+                </button>
 
-              {/* Dropdown */}
-              <div
-                className={
-                  pcheck
-                    ? "absolute z-30 flex flex-col top-[50px] left-[-163px] w-[200px] items-start bg-white text-black px-[20px] gap-2 rounded font-thin text-[17px]"
-                    : "hidden duration-300"
-                }
-              >
-                <Link onClick={handelpcheck} to="/profile">
-                  <button className="hover:text-blue-400 duration-300">
-                    Profile Setting
-                  </button>
-                </Link>
-                <button className="hover:text-blue-400 duration-300">
-                  Customer Service
-                </button>
-                <button
-                  onClick={() => {
-                    handeldataremove();
-                    handelpcheck();
-                  }}
-                  className="hover:text-blue-400 duration-300"
-                >
-                  Sign Out
-                </button>
+                {/* Dropdown */}
+                {dropdownOpen && (
+                  <div style={{
+                    position: "absolute",
+                    top: "calc(100% + 10px)",
+                    right: 0,
+                    width: "180px",
+                    background: "#1a1a1a",
+                    border: "0.5px solid rgba(245,240,232,0.12)",
+                    borderRadius: "12px",
+                    padding: "6px",
+                    animation: "bs-dropdown-in 0.18s ease both",
+                    zIndex: 200,
+                  }}>
+                    {/* User info */}
+                    <div style={{
+                      padding: "8px 12px 10px",
+                      borderBottom: "0.5px solid rgba(245,240,232,0.08)",
+                      marginBottom: "4px",
+                    }}>
+                      <p style={{ margin: 0, fontSize: "12px", color: "rgba(245,240,232,0.35)", fontFamily: "'DM Sans', sans-serif" }}>
+                        Signed in
+                      </p>
+                    </div>
+
+                    <Link to="/profile" className="bs-dropdown-item" onClick={() => setDropdownOpen(false)}>
+                      Profile settings
+                    </Link>
+                    <button className="bs-dropdown-item">
+                      Customer service
+                    </button>
+
+                    <div style={{ borderTop: "0.5px solid rgba(245,240,232,0.08)", marginTop: "4px", paddingTop: "4px" }}>
+                      <button
+                        className="bs-dropdown-item"
+                        onClick={handleLogout}
+                        style={{ color: "rgba(220,80,80,0.75)" }}
+                      >
+                        Sign out
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          </div>
-        </div>
+            )}
 
-        {/* Mobile menu */}
-        <div className={open ? "show-profile" : ""} id="mobile-menu">
-          <div className="relative z-10 space-y-1 px-2 pb-3 pt-2">
-            <Link
-              onClick={() => setOpen(true)}
-              to="#"
-              className="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white"
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setMobileOpen((p) => !p)}
+              style={{
+                display: "none",
+                width: "34px", height: "34px",
+                border: "0.5px solid rgba(245,240,232,0.12)",
+                borderRadius: "8px",
+                background: "transparent",
+                cursor: "pointer",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "5px",
+              }}
+              id="bs-hamburger"
+              title="Menu"
             >
-              Dashboard
-            </Link>
-
-            <Link onClick={() => setOpen(true)} to="/">
-              <span className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
-                Home
-              </span>
-            </Link>
-
-            <Link onClick={() => setOpen(true)} to="/cart">
-              <span className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
-                Go to cart
-              </span>
-              {value.cart.length > 0 && (
-                <h5 className="relative top-[-30px] left-[100px] w-[20px] text-center h-[20px] rounded bg-red-500">
-                  {value.cart.length}
-                </h5>
-              )}
-            </Link>
-
-            <Link onClick={() => setOpen(true)} to="/adminlogin">
-              <span className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
-                Admin login
-              </span>
-            </Link>
-
-            <Link onClick={() => setOpen(true)} to="#">
-              <span className="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
-                Contact us
-              </span>
-            </Link>
+              <span style={{ width: "16px", height: "1.5px", background: "#f5f0e8", borderRadius: "2px", transition: "transform 0.2s", transform: mobileOpen ? "rotate(45deg) translate(4px, 4px)" : "none" }} />
+              <span style={{ width: "16px", height: "1.5px", background: "#f5f0e8", borderRadius: "2px", opacity: mobileOpen ? 0 : 1, transition: "opacity 0.2s" }} />
+              <span style={{ width: "16px", height: "1.5px", background: "#f5f0e8", borderRadius: "2px", transition: "transform 0.2s", transform: mobileOpen ? "rotate(-45deg) translate(4px, -4px)" : "none" }} />
+            </button>
           </div>
         </div>
+
+        {/* ── Mobile menu ── */}
+        {mobileOpen && (
+          <div style={{
+            borderTop: "0.5px solid rgba(245,240,232,0.08)",
+            background: "#141414",
+            padding: "12px 1rem 16px",
+            animation: "bs-mobile-in 0.2s ease both",
+          }}>
+            {[
+              { label: "Home", path: "/" },
+              { label: "Dashboard", path: "/adminlogin" },
+              { label: "Cart", path: "/cart" },
+              // { label: "Admin login", path: "/adminlogin" },
+              { label: "Contact us", path: "/contact" },
+            ].map(({ label, path }) => (
+              <Link
+                key={path}
+                to={path}
+                className="bs-mobile-link"
+                onClick={() => setMobileOpen(false)}
+              >
+                {label}
+                {path === "/cart" && value.cart.length > 0 && (
+                  <span style={{
+                    marginLeft: "8px",
+                    background: "#c0392b",
+                    color: "#fff",
+                    fontSize: "10px",
+                    padding: "1px 6px",
+                    borderRadius: "10px",
+                  }}>
+                    {value.cart.length}
+                  </span>
+                )}
+              </Link>
+            ))}
+          </div>
+        )}
       </nav>
+
+      {/* Responsive hide/show for desktop links + hamburger */}
+      <style>{`
+        @media (max-width: 640px) {
+          .bs-desktop-links { display: none !important; }
+          #bs-hamburger { display: flex !important; }
+        }
+      `}</style>
     </>
   );
 }

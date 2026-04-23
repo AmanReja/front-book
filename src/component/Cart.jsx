@@ -1,620 +1,638 @@
-import { React, useContext, useEffect, useState, useRef } from "react";
+import { useContext, useEffect, useState } from "react";
 import cartcontext from "./Context/cartcontext";
-
-import "./Cart.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import master from "../assets/icons/master.png";
 import Swal from "sweetalert2";
 import axios from "axios";
-import camera from "../assets/icons/camara.png";
 import Getallcart from "./Context/Getallcart";
 
+/* ─── Font + keyframe injection ────────────────────────────────────────────── */
+const injectAssets = () => {
+  if (!document.getElementById("bs-fonts")) {
+    const link = document.createElement("link");
+    link.id = "bs-fonts";
+    link.rel = "stylesheet";
+    link.href =
+      "https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap";
+    document.head.appendChild(link);
+  }
+  if (!document.getElementById("bs-cart-kf")) {
+    const style = document.createElement("style");
+    style.id = "bs-cart-kf";
+    style.textContent = `
+      @keyframes bs-fade-up {
+        from { opacity: 0; transform: translateY(16px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes bs-slide-in {
+        from { opacity: 0; transform: translateX(24px); }
+        to   { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes bs-modal-in {
+        from { opacity: 0; transform: translateY(20px) scale(0.97); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      .bs-cart-item { animation: bs-fade-up 0.4s ease both; }
+      .bs-qty-btn:hover { background: rgba(245,240,232,0.15) !important; }
+      .bs-icon-btn:hover { background: rgba(245,240,232,0.08) !important; border-color: rgba(245,240,232,0.25) !important; }
+      .bs-remove-btn:hover { color: #e05555 !important; border-color: rgba(224,85,85,0.3) !important; }
+      .bs-view-btn:hover  { background: rgba(245,240,232,0.12) !important; }
+      .bs-pay-btn:hover   { opacity: 0.88 !important; }
+    `;
+    document.head.appendChild(style);
+  }
+};
+
+/* ─── Icons ─────────────────────────────────────────────────────────────────── */
+const TrashIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+    <path d="M10 11v6M14 11v6" /><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+  </svg>
+);
+const EyeIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
+  </svg>
+);
+const ShieldIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+  </svg>
+);
+const TruckIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+    <rect x="1" y="3" width="15" height="13" /><polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+    <circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" />
+  </svg>
+);
+const RefreshIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+    <polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 .49-3" />
+  </svg>
+);
+
+/* ─── Empty state ────────────────────────────────────────────────────────────── */
+function EmptyCart() {
+  return (
+    <div style={{ textAlign: "center", padding: "6rem 2rem", animation: "bs-fade-up 0.5s ease both" }}>
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="rgba(245,240,232,0.15)" strokeWidth="1" style={{ marginBottom: "1.5rem" }}>
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+        <line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" />
+      </svg>
+      <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: "22px", color: "#f5f0e8", margin: "0 0 8px" }}>
+        Your cart is empty
+      </p>
+      <p style={{ fontSize: "13px", color: "rgba(245,240,232,0.35)", margin: 0, fontFamily: "'DM Sans', sans-serif" }}>
+        Browse our collection and add some books
+      </p>
+    </div>
+  );
+}
+
+/* ─── Cart ───────────────────────────────────────────────────────────────────── */
 function Cart() {
+  injectAssets();
   const getAllcart = useContext(Getallcart);
-  const cartvalue = useContext(cartcontext);
-  const [rezPayid, setRezPayid] = useState("");
+  const value = useContext(cartcontext);
   const base_url = "https://book-backend-ust3.onrender.com";
 
-  console.log(18, cartvalue.cart);
-
-  const date = new Date();
-  const formatdate = date.toLocaleDateString("en-US", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-
-  const value = useContext(cartcontext);
-
+  const [rezPayid, setRezPayid] = useState("");
   const [details, setDetails] = useState(false);
   const [successdetails, setSuccessdetails] = useState([]);
-  // const [makepayment, setMakepayment] = useState(false);
+  const [buy, setbuy] = useState(null);
+  const [summaryOpen, setSummaryOpen] = useState(false);
 
-  const [buy, setbuy] = useState(false);
-  const [total, setTotal] = useState(true);
+  const date = new Date();
+  const formatdate = date.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" });
 
-  const calculatetotalprice = value.cart.reduce((acumulate, item) => {
-    return acumulate + item.items[0].price * item.items[0].quantity;
+  const calculatetotalprice = value.cart.reduce((acc, item) => {
+    return acc + item.items[0].price * item.items[0].quantity;
   }, 0);
-  const loadScript = (src) => {
-    return new Promise((resolve) => {
+
+  const loadScript = (src) =>
+    new Promise((resolve) => {
       const script = document.createElement("script");
       script.src = src;
-      script.onload = () => {
-        resolve(true);
-      };
-      script.onerror = () => {
-        resolve(false);
-      };
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
       document.body.appendChild(script);
     });
-  };
-  // console.log(48, cartvalue.cart[0].userid);
+
+  useEffect(() => { loadScript("https://checkout.razorpay.com/v1/checkout.js"); }, []);
 
   const handelpay = async () => {
     const addpayment = {
-      userid: cartvalue.cart[0].userid,
+      userid: value.cart[0].userid,
       amount: calculatetotalprice,
       brandname: "Online Shopping",
       quantity: value.cart.length,
-      brandimage:
-        "https://images.shiksha.com/mediadata/images/1626695443phppjGnqq.jpeg",
+      brandimage: "https://images.shiksha.com/mediadata/images/1626695443phppjGnqq.jpeg",
       razorpayid: "",
     };
-
-    const requestOptions = {
+    const response = await fetch(`${base_url}/pay/createPayment`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(addpayment),
-    };
-    const response = await fetch(
-      `${base_url}/pay/createPayment`,
-      requestOptions
-    );
+    });
     const data = await response.json();
-
-    console.log(33, data);
     setSuccessdetails(data);
 
-    var options = {
-      key: "rzp_test_ND81BEh4gRO77Q", // Enter the Key ID generated from the Dashboard
-      amount: calculatetotalprice * 100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+    const options = {
+      key: "rzp_test_ND81BEh4gRO77Q",
+      amount: calculatetotalprice * 100,
       currency: "INR",
-      name: "Book shop", //your business name
-      description: "There are 3 Products.",
-      image:
-        "https://images.shiksha.com/mediadata/images/1626695443phppjGnqq.jpeg",
-      handler: function (response) {
+      name: "Novelity Book Shop",
+      description: `${value.cart.length} item(s)`,
+      image: "https://images.shiksha.com/mediadata/images/1626695443phppjGnqq.jpeg",
+      handler: (response) => {
         setRezPayid(response.razorpay_payment_id);
         paySuccess(response.razorpay_payment_id, data._id, data.amount);
       },
     };
-
-    var rzp1 = new window.Razorpay(options);
-    rzp1.open();
+    new window.Razorpay(options).open();
   };
-  console.log("success", successdetails);
-  console.log("rezid", rezPayid);
 
   const paySuccess = async (rid, _id, amount) => {
-    const successpayment = {
-      razorpayid: rid,
-      status: "Success",
-    };
-
-    const requestOptions = {
+    const response = await fetch(`${base_url}/pay/sucessPayment/${_id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(successpayment),
-    };
-    const response = await fetch(
-      `${base_url}/pay/sucessPayment/${_id}`,
-      requestOptions
-    );
-    const data = await response.json();
-    console.log("patch data", data);
+      body: JSON.stringify({ razorpayid: rid, status: "Success" }),
+    });
     if (response.ok) {
-      Swal.fire({
-        title: "Good job!",
-        text: "payment succssful!",
-        icon: "success",
-      }).then(async (result) => {
-        console.log("valu of cart", cartvalue.cart);
-
-        const items = [];
-
-        for (const item of cartvalue.cart) {
-          const single_item = item.items[0];
-
-          const temp = {
-            bookname: single_item.bookname,
-            price: single_item.price,
-            quantity: single_item.quantity,
-            bookimage: single_item.bookimage,
-            authore: single_item.authore,
-            offer: single_item.offer,
-          };
-          items.push(temp);
-        }
-        const new_cart = {
-          userid: cartvalue.cart[0].userid,
-          totalamount: amount,
-          itemquantity: cartvalue.cart.length,
-          items: items, // Assuming each `items[0]` contains valid details
-        };
-
-        console.log("Payload for addOrder API:", new_cart);
-
-        // const requestOptions1 = {
-        //   method: "POST",
-        //   headers: { "Content-Type": "application/json" },
-        //   body: JSON.stringify(new_cart)
-        // };
-
-        try {
-          const response1 = await axios.post(
-            `${base_url}/order/addOrder`,
-            new_cart
-          );
-          const mydata = response1.data;
-
-          console.log(162, mydata);
-
-          //const data1 = response1.data;
-
-          if (mydata !== null) {
-            Swal.fire({
-              title: "orders are added to order schema",
-              text: "payment succssful!",
-              icon: "success",
+      Swal.fire({ title: "Payment successful!", icon: "success", background: "#1a1a1a", color: "#f5f0e8", confirmButtonColor: "#f5f0e8", confirmButtonText: '<span style="color:#0f0f0f">Continue</span>' })
+        .then(async () => {
+          const items = value.cart.map((item) => ({
+            bookname: item.items[0].bookname,
+            price: item.items[0].price,
+            quantity: item.items[0].quantity,
+            bookimage: item.items[0].bookimage,
+            authore: item.items[0].authore,
+            offer: item.items[0].offer,
+          }));
+          try {
+            const res = await axios.post(`${base_url}/order/addOrder`, {
+              userid: value.cart[0].userid,
+              totalamount: amount,
+              itemquantity: value.cart.length,
+              items,
             });
-            console.log("Add Order Response:", mydata);
-            window.location.reload();
-          }
-        } catch (error) {
-          console.error("Error in addOrder request:", error.message);
-        }
-      });
+            if (res.data) window.location.reload();
+          } catch (e) { console.error(e); }
+        });
     }
-
-    // Voice message after successful payment
-    const utterance = new SpeechSynthesisUtterance(
-      ` ${amount} rupees has been sent.`
-    );
+    const utterance = new SpeechSynthesisUtterance(`${amount} rupees has been sent.`);
     window.speechSynthesis.speak(utterance);
   };
 
-  const handeltotal = () => {
-    setTotal((prev) => !prev);
-  };
-
-  const handelbuy = (p) => {
-    setbuy(p.items[0]);
-    if (!details) {
-      setDetails(true);
-    } else {
-      setDetails(false);
-    }
-  };
-
-  const handelremove = async (p, index) => {
+  const handelremove = async (p) => {
     Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-
+      title: "Remove this book?",
+      text: "It will be removed from your cart.",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: "Remove",
+      cancelButtonText: "Keep it",
+      background: "#1a1a1a",
+      color: "#f5f0e8",
+      confirmButtonColor: "#c0392b",
+      cancelButtonColor: "rgba(245,240,232,0.1)",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const requestOptions = {
+        const response = await fetch(`${base_url}/cart/deleteCartitem/${p._id}`, {
           method: "delete",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(p),
-        };
-
-        const response = await fetch(
-          `${base_url}/cart/deleteCartitem/${p._id}`,
-          requestOptions
-        );
-        const data = await response.json();
-
-        if (!response.ok) {
-          toast.error("Your product has not removed", { theme: "dark" });
-        }
-        Swal.fire({
-          title: "Deleted!",
-          text: "Your file has been deleted.",
-          icon: "success",
         });
+        if (!response.ok) { toast.error("Failed to remove item", { theme: "dark" }); return; }
         await getAllcart();
       }
     });
   };
 
-  useEffect(() => {
-    loadScript("https://checkout.razorpay.com/v1/checkout.js");
-  }, []);
-
-  const incqnt = async (cart, itemIndex) => {
-    console.log(84, cart);
-
+  const updateQty = async (cart, delta) => {
+    const newQty = cart.items[0].quantity + delta;
+    if (newQty < 1) return;
     try {
-      const updatedQuantity = cart.items[0].quantity + 1; // Increment quantity
-
-      const requestOptions = {
+      await fetch(`${base_url}/cart/updateCartitem/${cart._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          itemId: cart.items[0]._id, // Pass item ID
-          quantity: updatedQuantity, // Pass updated quantity
-        }),
-      };
-
-      const response = await fetch(
-        `${base_url}/cart/updateCartitem/${cart._id}`, // Cart ID
-        requestOptions
-      );
-    } catch (error) {
-      console.error("Error updating cart:", error);
-      Swal.fire({
-        title: "Error",
-        text: "Something went wrong.",
-        icon: "error",
+        body: JSON.stringify({ itemId: cart.items[0]._id, quantity: newQty }),
       });
-    }
-    await getAllcart();
-  };
-  const decqnt = async (cart, itemIndex) => {
-    console.log(84, cart);
-
-    try {
-      const updatedQuantity = cart.items[0].quantity - 1; // Increment quantity
-
-      const requestOptions = {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          itemId: cart.items[0]._id, // Pass item ID
-          quantity: updatedQuantity, // Pass updated quantity
-        }),
-      };
-
-      const response = await fetch(
-        `${base_url}/cart/updateCartitem/${cart._id}`, // Cart ID
-        requestOptions
-      );
-    } catch (error) {
-      console.error("Error updating cart:", error);
-      Swal.fire({
-        title: "Error",
-        text: "Something went wrong.",
-        icon: "error",
-      });
-    }
-    await getAllcart();
+      await getAllcart();
+    } catch { toast.error("Update failed", { theme: "dark" }); }
   };
 
   return (
     <>
-      <ToastContainer></ToastContainer>
-      <div className=" cart-box min-h-[1000px] bg-gray-900">
-        <div
-          className={
-            !total
-              ? "cart-b1 bg-gray-800 h-max w-[700px] rounded-md p-4 shadow-[0_3px_20px_-10px_rgba(6,81,237,0.4)] z-10 absolute top-[100px] left-[700px]"
-              : "hidden"
-          }
-        >
-          <h3 className="text-lg font-bold text-white">Order Summary</h3>
-          <br />
-          <button
-            onClick={handeltotal}
-            className=" bg-lime-500 w-[150px] absolute right-[10px] top-[3%]"
-          >
-            <i class="fa-solid fa-x"></i>
-          </button>
+      <ToastContainer />
+      <div style={{
+        minHeight: "100vh",
+        background: "#0f0f0f",
+        fontFamily: "'DM Sans', sans-serif",
+        position: "relative",
+      }}>
+        {/* Grid texture */}
+        <div style={{
+          position: "fixed", inset: 0,
+          backgroundImage: "linear-gradient(rgba(245,240,232,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(245,240,232,0.025) 1px, transparent 1px)",
+          backgroundSize: "60px 60px",
+          pointerEvents: "none", zIndex: 0,
+        }} />
 
-          <ul className="text-gray-500 text-sm space-y-3 mt-3">
-            <li className="flex flex-wrap gap-4">
-              Subtotal{" "}
-              <span className="ml-auto font-bold">${calculatetotalprice}</span>
-            </li>
-            <li className="flex flex-wrap gap-4">
-              Shipping <span className="ml-auto font-bold">Free</span>
-            </li>
-            <li className="flex flex-wrap gap-4">
-              Tax <span className="ml-auto font-bold">$4.00</span>
-            </li>
-            <li className="flex flex-wrap gap-4 font-bold">
-              Total <span className="ml-auto">${calculatetotalprice + 4}</span>
-            </li>
-          </ul>
-          <button
-            onClick={handelpay}
-            type="button"
-            className="mt-6 text-sm px-6 py-3 w-full bg-blue-700 hover:bg-blue-800 tracking-wide text-white rounded-md"
-          >
-            Make Payment
-          </button>
-          <div className="mt-6 space-y-6">
-            <div>
-              <h4 className="text-sm font-bold text-sky-400 mb-3">
-                Secure payment
-              </h4>
-              <p className="text-sm text-gray-500">
-                Experience peace of mind with our secure payment options,
-                ensuring your transactions are protected and reliable.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-sm font-bold text-red-500 mb-3">
-                Free delivery
-              </h4>
-              <p className="text-sm text-gray-500">
-                Enjoy the convenience of free delivery on all your orders,
-                providing a cost-effective and seamless shopping experience.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-sm font-bold text-yellow-300 mb-3">
-                Easy to return
-              </h4>
-              <p className="text-sm text-gray-500">
-                Simplify your shopping experience with hassle-free returns. Our
-                easy return process ensures convenience and customer
-                satisfaction.
-              </p>
+        <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "2.5rem 1.5rem", position: "relative", zIndex: 1 }}>
+
+          {/* ── Page header ── */}
+          <div style={{ marginBottom: "2.5rem", animation: "bs-fade-up 0.4s ease both" }}>
+            <p style={{ fontSize: "11px", letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(245,240,232,0.3)", margin: "0 0 8px" }}>
+              Your selection
+            </p>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
+              <h1 style={{
+                fontFamily: "'DM Serif Display', serif",
+                fontSize: "clamp(28px, 5vw, 42px)",
+                fontWeight: 400,
+                color: "#f5f0e8",
+                margin: 0,
+                letterSpacing: "-0.5px",
+              }}>
+                Shopping Cart
+              </h1>
+              {value.cart.length > 0 && (
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <span style={{
+                    fontSize: "12px",
+                    color: "rgba(245,240,232,0.4)",
+                    border: "0.5px solid rgba(245,240,232,0.12)",
+                    borderRadius: "20px",
+                    padding: "4px 12px",
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}>
+                    {value.cart.length} {value.cart.length === 1 ? "item" : "items"}
+                  </span>
+                  <button
+                    onClick={() => setSummaryOpen(true)}
+                    style={{
+                      height: "36px", padding: "0 18px",
+                      background: "#f5f0e8", color: "#0f0f0f",
+                      border: "none", borderRadius: "36px",
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: "13px", fontWeight: 500,
+                      cursor: "pointer", transition: "opacity 0.15s",
+                    }}
+                    className="bs-pay-btn"
+                  >
+                    Checkout →
+                  </button>
+                </div>
+              )}
             </div>
           </div>
-        </div>
-        <br />
-        <div
-          className={
-            value.cart.length > 0
-              ? "shopping-head  pl-[50px] cart-head bg-gray-900 rounded w-[700px] items-center	 h-[60px] border-spacing-2 flex gap-[50px]"
-              : "hidden"
-          }
-        >
-          <h1 className="font-bold text-2xl">Shopping Cart </h1>{" "}
-          <button
-            onClick={handeltotal}
-            className={
-              total
-                ? "bg-lime-500 flex items-center justify-center w-[170px]"
-                : "hidden"
-            }
-          >
-            <p>Check total</p>
-            <i className="fa-solid text-2xl w-[60px] fa-arrow-right rotate-45"></i>
-          </button>
-          <h1 className="text-2xl font-thin w-[170px] text-center rounded bg-sky-500">
-            Total items : {value.cart.length}
-          </h1>
-        </div>
 
-        <section
-          className={
-            !details
-              ? "hidden"
-              : "group-A  w-[900px] vh-100 gradient-custom-2 left-[600px] z-10 "
-          }
-        >
-          <div className="container py-5 h-100">
-            <div className="row d-flex justify-content-center align-items-center h-100">
-              <div className="col-md-10 col-lg-8 col-xl-6">
-                <div className="card card-stepper" style={{ borderRadius: 16 }}>
-                  <div className=" bg-lime-400 card-header p-4">
-                    <button
-                      className="w-[80px] hover:bg-red-600 left-[200px] rounded-2xl relative duration-300"
-                      onClick={() => {
-                        setDetails(false);
-                      }}
-                    >
-                      <i class="  fa-solid fa-x"></i>
-                    </button>
+          {value.cart.length === 0 ? (
+            <EmptyCart />
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: "1.5rem", alignItems: "start" }}>
 
-                    <div className="d-flex justify-content-between align-items-center">
+              {/* ── Cart items ── */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                {value.cart.map((p, index) => (
+                  <div
+                    key={p._id}
+                    className="bs-cart-item"
+                    style={{
+                      background: "#1a1a1a",
+                      border: "0.5px solid rgba(245,240,232,0.08)",
+                      borderRadius: "16px",
+                      padding: "1.25rem",
+                      display: "flex",
+                      gap: "1.25rem",
+                      animationDelay: `${index * 0.07}s`,
+                      transition: "border-color 0.2s",
+                    }}
+                  >
+                    {/* Cover */}
+                    <div style={{
+                      width: "90px", height: "120px",
+                      borderRadius: "8px",
+                      overflow: "hidden",
+                      flexShrink: 0,
+                      background: "#141414",
+                      border: "0.5px solid rgba(245,240,232,0.08)",
+                    }}>
+                      <img
+                        src={p.items[0].bookimage}
+                        alt={p.items[0].bookname}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    </div>
+
+                    {/* Info */}
+                    <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                       <div>
-                        <p className="text-muted mb-2">
-                          {" "}
-                          {}{" "}
-                          <span className="fw-bold text-body">FN123456789</span>
-                        </p>
-                        <p className="text-muted mb-0">
-                          {" "}
-                          <span className="fw-bold text-body">
-                            {formatdate}
-                          </span>{" "}
-                        </p>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem" }}>
+                          <div>
+                            <h3 style={{
+                              fontFamily: "'DM Serif Display', serif",
+                              fontSize: "17px", fontWeight: 400,
+                              color: "#f5f0e8", margin: "0 0 3px",
+                            }}>
+                              {p.items[0].bookname}
+                            </h3>
+                            <p style={{ fontSize: "12px", color: "rgba(245,240,232,0.38)", margin: "0 0 8px", fontFamily: "'DM Sans', sans-serif" }}>
+                              {p.items[0].authore}
+                            </p>
+                          </div>
+                          <div style={{ textAlign: "right", flexShrink: 0 }}>
+                            <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: "20px", color: "#f5f0e8", margin: 0 }}>
+                              ${(p.items[0].price * p.items[0].quantity).toFixed(2)}
+                            </p>
+                            {p.items[0].offer > 0 && (
+                              <span style={{
+                                fontSize: "11px", color: "#f5f0e8",
+                                background: "#c0392b",
+                                padding: "2px 7px", borderRadius: "10px",
+                                fontFamily: "'DM Sans', sans-serif",
+                              }}>
+                                {p.items[0].offer}% off
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <h6 className="mb-0">
-                          {" "}
-                          {/* <a href="#">View Details</a>{" "} */}
-                        </h6>
+
+                      {/* Bottom row */}
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
+                        {/* Qty controls */}
+                        <div style={{
+                          display: "flex", alignItems: "center", gap: "10px",
+                          background: "rgba(245,240,232,0.05)",
+                          border: "0.5px solid rgba(245,240,232,0.1)",
+                          borderRadius: "20px", padding: "4px 12px",
+                        }}>
+                          <button
+                            onClick={() => updateQty(p, -1)}
+                            className="bs-qty-btn"
+                            style={{
+                              width: "22px", height: "22px", borderRadius: "50%",
+                              background: "transparent", border: "0.5px solid rgba(245,240,232,0.15)",
+                              color: "#f5f0e8", cursor: "pointer",
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              fontSize: "14px", transition: "background 0.15s",
+                              opacity: p.items[0].quantity <= 1 ? 0.3 : 1,
+                            }}
+                          >−</button>
+                          <span style={{ fontSize: "13px", fontWeight: 500, color: "#f5f0e8", minWidth: "16px", textAlign: "center" }}>
+                            {p.items[0].quantity}
+                          </span>
+                          <button
+                            onClick={() => updateQty(p, 1)}
+                            className="bs-qty-btn"
+                            style={{
+                              width: "22px", height: "22px", borderRadius: "50%",
+                              background: "transparent", border: "0.5px solid rgba(245,240,232,0.15)",
+                              color: "#f5f0e8", cursor: "pointer",
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              fontSize: "14px", transition: "background 0.15s",
+                            }}
+                          >+</button>
+                        </div>
+
+                        {/* Action buttons */}
+                        <div style={{ display: "flex", gap: "8px" }}>
+                          <button
+                            onClick={() => handelremove(p)}
+                            className="bs-remove-btn"
+                            style={{
+                              display: "flex", alignItems: "center", gap: "5px",
+                              height: "32px", padding: "0 12px",
+                              background: "transparent",
+                              border: "0.5px solid rgba(245,240,232,0.12)",
+                              borderRadius: "20px",
+                              color: "rgba(245,240,232,0.4)",
+                              fontSize: "12px", fontFamily: "'DM Sans', sans-serif",
+                              cursor: "pointer", transition: "color 0.15s, border-color 0.15s",
+                            }}
+                          >
+                            <TrashIcon /> Remove
+                          </button>
+                          <button
+                            onClick={() => { setbuy(p.items[0]); setDetails(true); }}
+                            className="bs-view-btn"
+                            style={{
+                              display: "flex", alignItems: "center", gap: "5px",
+                              height: "32px", padding: "0 12px",
+                              background: "rgba(245,240,232,0.06)",
+                              border: "0.5px solid rgba(245,240,232,0.12)",
+                              borderRadius: "20px",
+                              color: "rgba(245,240,232,0.6)",
+                              fontSize: "12px", fontFamily: "'DM Sans', sans-serif",
+                              cursor: "pointer", transition: "background 0.15s",
+                            }}
+                          >
+                            <EyeIcon /> Details
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div className=" bg-black card-body p-4">
-                    <div className="d-flex flex-row mb-4 pb-2">
-                      <div className="flex-fill">
-                        <h5 className="bold">{buy?.bookname}</h5>
-                        <br />
-                        <h4 className="mb-3">
-                          {" "}
-                          $ {buy?.price}
-                          <span className="small "> via (COD) </span>
-                        </h4>
-                        <p className="text-amber-400">
-                          Tracking Status on:{" "}
-                          <span className="text-white">{formatdate} Today</span>
-                        </p>
-                      </div>
+                ))}
+              </div>
+
+              {/* ── Order summary sidebar ── */}
+              <div style={{
+                background: "#1a1a1a",
+                border: "0.5px solid rgba(245,240,232,0.08)",
+                borderRadius: "16px",
+                padding: "1.5rem",
+                position: "sticky",
+                top: "80px",
+                animation: "bs-slide-in 0.4s ease 0.15s both",
+              }}>
+                <h2 style={{
+                  fontFamily: "'DM Serif Display', serif",
+                  fontSize: "20px", fontWeight: 400,
+                  color: "#f5f0e8", margin: "0 0 1.25rem",
+                }}>
+                  Order summary
+                </h2>
+
+                {/* Line items */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "1.25rem" }}>
+                  {[
+                    { label: "Subtotal", value: `$${calculatetotalprice.toFixed(2)}` },
+                    { label: "Shipping", value: "Free" },
+                    { label: "Tax", value: "$4.00" },
+                  ].map(({ label, value: val }) => (
+                    <div key={label} style={{ display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
+                      <span style={{ color: "rgba(245,240,232,0.4)" }}>{label}</span>
+                      <span style={{ color: "#f5f0e8", fontWeight: 400 }}>{val}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Divider */}
+                <div style={{ borderTop: "0.5px solid rgba(245,240,232,0.08)", margin: "0 0 1.25rem", paddingTop: "1rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: "17px", color: "#f5f0e8" }}>Total</span>
+                    <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: "22px", color: "#f5f0e8" }}>
+                      ${(calculatetotalprice + 4).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Pay button */}
+                <button
+                  onClick={handelpay}
+                  className="bs-pay-btn"
+                  style={{
+                    width: "100%", padding: "14px",
+                    background: "#f5f0e8", color: "#0f0f0f",
+                    border: "none", borderRadius: "10px",
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: "14px", fontWeight: 500,
+                    cursor: "pointer", transition: "opacity 0.15s",
+                    marginBottom: "1.5rem",
+                  }}
+                >
+                  Pay with Razorpay
+                </button>
+
+                {/* Perks */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                  {[
+                    { icon: <ShieldIcon />, label: "Secure payment", desc: "Your transactions are encrypted and protected." },
+                    { icon: <TruckIcon />, label: "Free delivery", desc: "Free shipping on all orders, always." },
+                    { icon: <RefreshIcon />, label: "Easy returns", desc: "Hassle-free returns within 30 days." },
+                  ].map(({ icon, label, desc }) => (
+                    <div key={label} style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
+                      <div style={{ color: "rgba(245,240,232,0.3)", flexShrink: 0, marginTop: "1px" }}>{icon}</div>
                       <div>
-                        <img
-                          className=" w-[200px] h-[132px] rounded-2xl object-cover"
-                          src={buy?.bookimage}
-                        />
+                        <p style={{ margin: "0 0 2px", fontSize: "12px", fontWeight: 500, color: "rgba(245,240,232,0.6)" }}>{label}</p>
+                        <p style={{ margin: 0, fontSize: "11px", color: "rgba(245,240,232,0.25)", lineHeight: 1.5 }}>{desc}</p>
                       </div>
                     </div>
-                  </div>
-                  <div className=" bg-sky-500 card-footer p-4">
-                    <div className="d-flex justify-content-between">
-                      <h5 className="fw-normal mb-0">
-                        <a href="#!">Track</a>
-                      </h5>
-                      <div className="border-start h-100" />
-                      <h5 className="fw-normal mb-0">
-                        <a href="#!">Cancel</a>
-                      </h5>
-                      <div className="border-start h-100" />
-                      <h5 className="fw-normal mb-0">
-                        <a href="#!">Pre-pay</a>
-                      </h5>
-                      <div className="border-start h-100" />
-                      <h5 className="fw-normal mb-0">
-                        <a href="#!" className="text-muted">
-                          <i className="fas fa-ellipsis-v" />
-                        </a>
-                      </h5>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
-          </div>
-        </section>
+          )}
+        </div>
 
-        {cartvalue.cart.map((p, index) => (
-          <div key={p._id} className="  relative w-[710px] bg-gray-900">
-            <div className=" fixed  transition-opacity " />
-            <div className=" mt-8 ">
-              <div className=" box-cart-1  relative left-[80px] flow bg-gray-900">
-                <li className=" box-cart flex py-6 w-[700px]">
-                  <div className=" box-car-img w-[200px] h-[132px] shrink-0 overflow-hidden rounded-md border border-gray-200">
-                    <img
-                      src={p.items[0].bookimage}
-                      alt="Front of satchel with blue canvas body, black straps and handle, drawstring top, and front zipper pouch."
-                      className=" w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="ml-4 flex flex-1 flex-col">
-                    <div>
-                      <div className="flex flex-col text-left  font-medium text-gray-900">
-                        <h3 className="text-sky-500">
-                          <a className="uppercase" href="#">
-                            {p.items[0].bookname}
-                          </a>
-                        </h3>
+        {/* ── Book detail modal ── */}
+        {details && buy && (
+          <div
+            onClick={() => setDetails(false)}
+            style={{
+              position: "fixed", inset: 0,
+              background: "rgba(0,0,0,0.7)",
+              backdropFilter: "blur(4px)",
+              zIndex: 200,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              padding: "1rem",
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: "#1a1a1a",
+                border: "0.5px solid rgba(245,240,232,0.12)",
+                borderRadius: "20px",
+                width: "100%", maxWidth: "480px",
+                overflow: "hidden",
+                animation: "bs-modal-in 0.25s ease both",
+              }}
+            >
+              {/* Modal header */}
+              <div style={{
+                background: "#141414",
+                padding: "1rem 1.25rem",
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                borderBottom: "0.5px solid rgba(245,240,232,0.08)",
+              }}>
+                <div>
+                  <p style={{ margin: 0, fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(245,240,232,0.3)" }}>
+                    Order #FN123456789
+                  </p>
+                  <p style={{ margin: "2px 0 0", fontSize: "12px", color: "rgba(245,240,232,0.5)" }}>{formatdate}</p>
+                </div>
+                <button
+                  onClick={() => setDetails(false)}
+                  style={{
+                    width: "30px", height: "30px", borderRadius: "50%",
+                    background: "rgba(245,240,232,0.06)",
+                    border: "0.5px solid rgba(245,240,232,0.12)",
+                    color: "rgba(245,240,232,0.5)",
+                    cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
 
-                        <p className="ml-4 	">${p.items[0].price}</p>
-                      </div>
-                      <p className="mt-1 text-sm text-gray-500">
-                        {p.items[0].authore}
-                      </p>
-                      <p>{p.items[0].offer}% off</p>
-                      <div className="flex items-center gap-3">
-                        <h4 className="text-sm text-gray-500">
-                          Qty:X{p.items[0].quantity}
-                        </h4>
-                        <button
-                          onClick={(e) => {
-                            decqnt(p, index);
-                          }}
-                          type="button"
-                          className="flex items-center justify-center w-5 h-5 bg-blue-600 outline-none rounded-full"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="w-2 fill-white"
-                            viewBox="0 0 124 124"
-                          >
-                            <path
-                              d="M112 50H12C5.4 50 0 55.4 0 62s5.4 12 12 12h100c6.6 0 12-5.4 12-12s-5.4-12-12-12z"
-                              data-original="#000000"
-                            />
-                          </svg>
-                        </button>
-                        <span className="font-bold text-sm leading-[16px]">
-                          {p.items[0].quantity}
-                        </span>
-                        <button
-                          onClick={(e) => {
-                            incqnt(p, index);
-                          }}
-                          type="button"
-                          className="flex items-center justify-center w-5 h-5 bg-blue-600 outline-none rounded-full"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="w-2 fill-white"
-                            viewBox="0 0 42 42"
-                          >
-                            <path
-                              d="M37.059 16H26V4.941C26 2.224 23.718 0 21 0s-5 2.224-5 4.941V16H4.941C2.224 16 0 18.282 0 21s2.224 5 4.941 5H16v11.059C16 39.776 18.282 42 21 42s5-2.224 5-4.941V26h11.059C39.776 26 42 23.718 42 21s-2.224-5-4.941-5z"
-                              data-original="#000000"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                    <div className=" flex items-end justify-between text-sm">
-                      <div className="cart-box-btn flex gap-2">
-                        <button
-                          onClick={() => {
-                            handelremove(p, index);
-                          }}
-                          type="button"
-                          className=" w-[150px] border font-medium text-indigo-600 hover:text-indigo-500"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="w-3 fill-current mr-3 inline-block"
-                            viewBox="0 0 390 390"
-                          >
-                            <path
-                              d="M30.391 318.583a30.37 30.37 0 0 1-21.56-7.288c-11.774-11.844-11.774-30.973 0-42.817L266.643 10.665c12.246-11.459 31.462-10.822 42.921 1.424 10.362 11.074 10.966 28.095 1.414 39.875L51.647 311.295a30.366 30.366 0 0 1-21.256 7.288z"
-                              data-original="#000000"
-                            ></path>
-                            <path
-                              d="M287.9 318.583a30.37 30.37 0 0 1-21.257-8.806L8.83 51.963C-2.078 39.225-.595 20.055 12.143 9.146c11.369-9.736 28.136-9.736 39.504 0l259.331 257.813c12.243 11.462 12.876 30.679 1.414 42.922-.456.487-.927.958-1.414 1.414a30.368 30.368 0 0 1-23.078 7.288z"
-                              data-original="#000000"
-                            ></path>
-                          </svg>
-                          Remove
-                        </button>
-                        <button
-                          onClick={() => {
-                            handelbuy(p, index);
-                          }}
-                          type="button"
-                          className="w-[150px] h-8 rounded bg-lime-400 font-medium  hover:text-indigo-500"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="w-3.5 fill-current mr-3 inline-block"
-                            viewBox="0 0 128 128"
-                          >
-                            <path
-                              d="M64 104C22.127 104 1.367 67.496.504 65.943a4 4 0 0 1 0-3.887C1.367 60.504 22.127 24 64 24s62.633 36.504 63.496 38.057a4 4 0 0 1 0 3.887C126.633 67.496 105.873 104 64 104zM8.707 63.994C13.465 71.205 32.146 96 64 96c31.955 0 50.553-24.775 55.293-31.994C114.535 56.795 95.854 32 64 32 32.045 32 13.447 56.775 8.707 63.994zM64 88c-13.234 0-24-10.766-24-24s10.766-24 24-24 24 10.766 24 24-10.766 24-24 24zm0-40c-8.822 0-16 7.178-16 16s7.178 16 16 16 16-7.178 16-16-7.178-16-16-16z"
-                              data-original="#000000"
-                            ></path>
-                          </svg>
-                          View details
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-                {/* More products... */}
+              {/* Modal body */}
+              <div style={{ padding: "1.5rem", display: "flex", gap: "1.25rem" }}>
+                <img
+                  src={buy.bookimage}
+                  alt={buy.bookname}
+                  style={{
+                    width: "90px", height: "120px",
+                    borderRadius: "8px", objectFit: "cover",
+                    border: "0.5px solid rgba(245,240,232,0.1)",
+                    flexShrink: 0,
+                  }}
+                />
+                <div>
+                  <h3 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "20px", fontWeight: 400, color: "#f5f0e8", margin: "0 0 4px" }}>
+                    {buy.bookname}
+                  </h3>
+                  <p style={{ fontSize: "22px", fontFamily: "'DM Serif Display', serif", color: "#f5f0e8", margin: "0 0 8px" }}>
+                    ${buy.price}
+                  </p>
+                  <span style={{
+                    fontSize: "11px", color: "rgba(245,240,232,0.4)",
+                    background: "rgba(245,240,232,0.06)",
+                    border: "0.5px solid rgba(245,240,232,0.1)",
+                    padding: "3px 10px", borderRadius: "10px",
+                  }}>
+                    via COD
+                  </span>
+                  <p style={{ margin: "12px 0 0", fontSize: "12px", color: "rgba(245,240,232,0.35)" }}>
+                    Tracking updates from: <span style={{ color: "rgba(245,240,232,0.6)" }}>{formatdate}</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Modal footer */}
+              <div style={{
+                padding: "1rem 1.5rem",
+                borderTop: "0.5px solid rgba(245,240,232,0.08)",
+                display: "flex", gap: "8px",
+              }}>
+                {["Track", "Cancel", "Pre-pay"].map((action) => (
+                  <button
+                    key={action}
+                    style={{
+                      flex: 1, height: "34px",
+                      background: "transparent",
+                      border: "0.5px solid rgba(245,240,232,0.12)",
+                      borderRadius: "8px",
+                      color: "rgba(245,240,232,0.5)",
+                      fontSize: "12px", fontFamily: "'DM Sans', sans-serif",
+                      cursor: "pointer", transition: "background 0.15s, color 0.15s",
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(245,240,232,0.07)"; e.currentTarget.style.color = "#f5f0e8"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "rgba(245,240,232,0.5)"; }}
+                  >
+                    {action}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
-        ))}
-        <br />
+        )}
       </div>
     </>
   );
