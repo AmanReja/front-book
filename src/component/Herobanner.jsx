@@ -1,317 +1,159 @@
-import { useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
+import { BsChevronLeft, BsChevronRight, BsArrowRight } from "react-icons/bs";
 
-/* ─── Font injection ───────────────────────────────────────────────────────── */
-const injectFonts = () => {
-  if (document.getElementById("bs-fonts")) return;
-  const link = document.createElement("link");
-  link.id = "bs-fonts";
-  link.rel = "stylesheet";
-  link.href =
-    "https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap";
-  document.head.appendChild(link);
-};
+const Herobanner = () => {
+  const base_url = "https://book-backend-ust3.onrender.com";
+  const [products, setProducts] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-/* ─── Keyframes injected once ──────────────────────────────────────────────── */
-const injectKeyframes = () => {
-  if (document.getElementById("bs-hero-kf")) return;
-  const style = document.createElement("style");
-  style.id = "bs-hero-kf";
-  style.textContent = `
-    @keyframes bs-fade-up {
-      from { opacity: 0; transform: translateY(28px); }
-      to   { opacity: 1; transform: translateY(0); }
+  // Fetch Products for the Slider
+  const getProducts = async () => {
+    try {
+      const response = await fetch(`${base_url}/seller/getAllBooks`);
+      const data = await response.json();
+      setProducts(data.slice(0, 5)); // Take top 5 for hero
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching books:", error);
+      setLoading(false);
     }
-    @keyframes bs-fade-in {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
-    @keyframes bs-float {
-      0%, 100% { transform: translateY(0px) rotate(-2deg); }
-      50%       { transform: translateY(-14px) rotate(-2deg); }
-    }
-    @keyframes bs-float2 {
-      0%, 100% { transform: translateY(0px) rotate(3deg); }
-      50%       { transform: translateY(-10px) rotate(3deg); }
-    }
-    @keyframes bs-float3 {
-      0%, 100% { transform: translateY(0px) rotate(-1deg); }
-      50%       { transform: translateY(-18px) rotate(-1deg); }
-    }
-    @keyframes bs-scroll-pulse {
-      0%, 100% { opacity: 0.3; transform: translateY(0); }
-      50%       { opacity: 0.8; transform: translateY(5px); }
-    }
-    .bs-hero-tag:hover {
-      border-color: rgba(245,240,232,0.3) !important;
-      background: rgba(245,240,232,0.08) !important;
-    }
-  `;
-  document.head.appendChild(style);
-};
+  };
 
-/* ─── Floating book card ───────────────────────────────────────────────────── */
-function FloatingBook({ title, author, color, top, left, delay, animName, rotate }) {
+  useEffect(() => {
+    getProducts();
+  }, []);
+
+  const nextSlide = useCallback(() => {
+    setCurrentIndex((prev) => (prev === products.length - 1 ? 0 : prev + 1));
+  }, [products.length]);
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev === 0 ? products.length - 1 : prev - 1));
+  };
+
+  useEffect(() => {
+    if (products.length === 0) return;
+    const interval = setInterval(nextSlide, 5000);
+    return () => clearInterval(interval);
+  }, [nextSlide, products.length]);
+
+  if (loading) return <div className="h-screen bg-[#0f0f0f] flex items-center justify-center text-white">Loading...</div>;
+
   return (
-    <div
-      style={{
-        position: "absolute",
-        top,
-        left,
-        width: "120px",
-        animation: `${animName} 5s ease-in-out ${delay}s infinite`,
-        opacity: 0.18,
-        transform: `rotate(${rotate})`,
-        pointerEvents: "none",
-      }}
-    >
-      <div
-        style={{
-          background: color,
-          borderRadius: "6px",
-          padding: "14px 10px",
-          boxShadow: "4px 4px 0 rgba(0,0,0,0.4)",
-        }}
-      >
-        <div style={{ width: "100%", height: "2px", background: "rgba(255,255,255,0.4)", marginBottom: "8px" }} />
-        <div style={{ width: "70%", height: "2px", background: "rgba(255,255,255,0.25)", marginBottom: "40px" }} />
-        <div style={{ fontSize: "8px", color: "rgba(255,255,255,0.7)", fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>{title}</div>
-        <div style={{ fontSize: "7px", color: "rgba(255,255,255,0.4)", fontFamily: "'DM Sans', sans-serif", marginTop: "2px" }}>{author}</div>
+    <section className="relative min-h-screen w-full bg-[#0a0a0a] overflow-hidden flex items-center pt-20">
+      {/* Background Decorative Elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-lime-500/10 blur-[120px] rounded-full" />
+        <div className="absolute bottom-0 right-0 w-[30%] h-[50%] bg-blue-500/5 blur-[120px] rounded-full" />
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/carbon-fibre.png")' }} />
       </div>
-    </div>
-  );
-}
 
-/* ─── Herobanner ───────────────────────────────────────────────────────────── */
-function Herobanner() {
-  injectFonts();
-  injectKeyframes();
+      <div className="container mx-auto px-6 lg:px-12 z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          
+          {/* LEFT CONTENT: Typography */}
+          <div className="lg:col-span-7 text-left order-2 lg:order-1">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 mb-6 animate-fade-in">
+              <span className="w-2 h-2 rounded-full bg-lime-400 animate-pulse" />
+              <span className="text-[10px] uppercase tracking-[0.2em] text-white/60 font-medium">New Arrivals 2024</span>
+            </div>
 
-  const tags = ["Fiction", "Non-fiction", "Sci-fi", "Biography", "Poetry", "History"];
+            <h1 className="font-['DM_Serif_Display'] text-5xl md:text-7xl lg:text-8xl text-[#f5f0e8] leading-[1.1] mb-6">
+              Every page is <br />
+              <span className="italic text-white/40">an adventure.</span>
+            </h1>
 
-  return (
-    <section
-      style={{
-        minHeight: "100vh",
-        background: "#0f0f0f",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontFamily: "'DM Sans', sans-serif",
-        position: "relative",
-        overflow: "hidden",
-        padding: "2rem 1rem",
-      }}
-    >
-      {/* ── Subtle grid texture ── */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage:
-            "linear-gradient(rgba(245,240,232,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(245,240,232,0.03) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
-          pointerEvents: "none",
-        }}
-      />
+            <p className="max-w-lg text-white/40 text-lg md:text-xl leading-relaxed mb-10">
+              Discover a sanctuary of curated stories. From timeless classics to 
+              modern masterpieces, find the book that speaks to your soul.
+            </p>
 
-      {/* ── Radial glow center ── */}
-      <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: "600px",
-          height: "600px",
-          background: "radial-gradient(circle, rgba(245,240,232,0.04) 0%, transparent 70%)",
-          pointerEvents: "none",
-        }}
-      />
+            <div className="flex flex-wrap gap-4 items-center">
+              <Link to="/products">
+                <button className="group relative px-8 py-4 bg-white text-black font-semibold rounded-full overflow-hidden transition-all hover:pr-12">
+                  <span className="relative z-10">Browse Collection</span>
+                  <BsArrowRight className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all" />
+                </button>
+              </Link>
+              <Link to="/about" className="px-8 py-4 text-white font-medium border border-white/10 rounded-full hover:bg-white/5 transition-all">
+                Our Story
+              </Link>
+            </div>
 
-      {/* ── Floating book decorations ── */}
-      <FloatingBook title="Dune" author="Frank Herbert" color="#3b4a6b" top="12%" left="5%" delay={0} animName="bs-float3" rotate="-2deg" />
-      <FloatingBook title="Sapiens" author="Y. N. Harari" color="#4a3b2a" top="60%" left="3%" delay={1.2} animName="bs-float2" rotate="3deg" />
-      <FloatingBook title="The Alchemist" author="Paulo Coelho" color="#2a4a3b" top="15%" left="82%" delay={0.6} animName="bs-float" rotate="-1deg" />
-      <FloatingBook title="Atomic Habits" author="James Clear" color="#4a2a3b" top="65%" left="85%" delay={1.8} animName="bs-float2" rotate="2deg" />
+            {/* Quick Stats */}
+            <div className="mt-16 grid grid-cols-3 gap-8 border-t border-white/5 pt-8 max-w-md">
+              <div>
+                <div className="text-2xl font-bold text-white">12k+</div>
+                <div className="text-xs uppercase tracking-wider text-white/30">Titles</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-white">8k+</div>
+                <div className="text-xs uppercase tracking-wider text-white/30">Authors</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-white">24/7</div>
+                <div className="text-xs uppercase tracking-wider text-white/30">Support</div>
+              </div>
+            </div>
+          </div>
 
-      {/* ── Main content ── */}
-      <div style={{ maxWidth: "720px", width: "100%", textAlign: "center", position: "relative", zIndex: 1 }}>
+          {/* RIGHT CONTENT: Modernized Slider */}
+          <div className="lg:col-span-5 order-1 lg:order-2">
+            <div className="relative group perspective-1000">
+              {/* Slider Main Frame */}
+              <div className="relative aspect-[3/4] w-full max-w-[400px] mx-auto rounded-[2rem] overflow-hidden shadow-2xl shadow-black/50 border border-white/10">
+                {products.map((item, index) => (
+                  <div
+                    key={index}
+                    className={`absolute inset-0 transition-all duration-1000 ease-[cubic-bezier(0.23, 1, 0.32, 1)] ${
+                      index === currentIndex ? "opacity-100 scale-100 rotate-0" : "opacity-0 scale-110 rotate-3 pointer-events-none"
+                    }`}
+                  >
+                    <img 
+                      src={item.bookimage} 
+                      alt={item.bookname}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                    
+                    {/* Floating Info on Image */}
+                    <div className="absolute bottom-8 left-8 right-8">
+                        <p className="text-lime-400 text-xs font-bold uppercase tracking-widest mb-2">Featured Book</p>
+                        <h3 className="text-2xl font-bold text-white mb-1 leading-tight">{item.bookname}</h3>
+                        <p className="text-white/60 text-sm italic">by {item.author || "Global Author"}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-        {/* Eyebrow */}
-        <div
-          style={{
-            display: "inline-block",
-            fontSize: "11px",
-            fontWeight: 500,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-            color: "rgba(245,240,232,0.4)",
-            border: "0.5px solid rgba(245,240,232,0.12)",
-            borderRadius: "20px",
-            padding: "5px 14px",
-            marginBottom: "2rem",
-            animation: "bs-fade-in 0.6s ease forwards",
-          }}
-        >
-          Welcome to the bookstore
-        </div>
+              {/* Slider Controls */}
+              <div className="absolute -bottom-6 right-0 left-0 flex justify-center lg:justify-end lg:right-4 gap-2">
+                <button 
+                  onClick={prevSlide}
+                  className="p-4 rounded-full bg-[#1a1a1a] border border-white/10 text-white hover:bg-lime-500 hover:text-black transition-all shadow-xl"
+                >
+                  <BsChevronLeft size={20} />
+                </button>
+                <button 
+                  onClick={nextSlide}
+                  className="p-4 rounded-full bg-[#1a1a1a] border border-white/10 text-white hover:bg-lime-500 hover:text-black transition-all shadow-xl"
+                >
+                  <BsChevronRight size={20} />
+                </button>
+              </div>
 
-        {/* Headline */}
-        <h1
-          style={{
-            fontFamily: "'DM Serif Display', serif",
-            fontSize: "clamp(36px, 7vw, 68px)",
-            fontWeight: 400,
-            color: "#f5f0e8",
-            lineHeight: 1.1,
-            margin: "0 0 1.5rem",
-            letterSpacing: "-1px",
-            animation: "bs-fade-up 0.7s ease 0.15s both",
-          }}
-        >
-          Every page is<br />
-          <span style={{ fontStyle: "italic", color: "rgba(245,240,232,0.55)" }}>
-            an adventure
-          </span>
-        </h1>
+              {/* Decorative Book Stack Effect */}
+              <div className="absolute -z-10 top-8 -right-4 w-full h-full border border-white/5 bg-white/5 rounded-[2rem] rotate-3" />
+              <div className="absolute -z-20 top-16 -right-8 w-full h-full border border-white/5 bg-white/5 rounded-[2rem] rotate-6" />
+            </div>
+          </div>
 
-        {/* Body copy */}
-        <p
-          style={{
-            fontSize: "16px",
-            color: "rgba(245,240,232,0.42)",
-            lineHeight: 1.75,
-            maxWidth: "480px",
-            margin: "0 auto 2.5rem",
-            animation: "bs-fade-up 0.7s ease 0.3s both",
-          }}
-        >
-          A sanctuary where the power of words sparks hope and possibility.
-          Thousands of curated titles, waiting for your next chapter.
-        </p>
-
-        {/* Genre tags */}
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "center",
-            gap: "8px",
-            marginBottom: "2.5rem",
-            animation: "bs-fade-up 0.7s ease 0.42s both",
-          }}
-        >
-          {tags.map((tag) => (
-            <span
-              key={tag}
-              className="bs-hero-tag"
-              style={{
-                fontSize: "12px",
-                color: "rgba(245,240,232,0.45)",
-                border: "0.5px solid rgba(245,240,232,0.12)",
-                borderRadius: "20px",
-                padding: "5px 12px",
-                cursor: "default",
-                transition: "border-color 0.2s, background 0.2s",
-              }}
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        {/* CTA buttons */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "12px",
-            flexWrap: "wrap",
-            animation: "bs-fade-up 0.7s ease 0.55s both",
-          }}
-        >
-          <Link to="/products" style={{ textDecoration: "none" }}>
-            <button
-              style={{
-                height: "46px",
-                padding: "0 28px",
-                background: "#f5f0e8",
-                color: "#0f0f0f",
-                border: "none",
-                borderRadius: "40px",
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "14px",
-                fontWeight: 500,
-                cursor: "pointer",
-                letterSpacing: "0.01em",
-                transition: "opacity 0.15s",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-            >
-              Browse collection
-            </button>
-          </Link>
-
-          <Link to="/about" style={{ textDecoration: "none" }}>
-            <button
-              style={{
-                height: "46px",
-                padding: "0 28px",
-                background: "transparent",
-                color: "#f5f0e8",
-                border: "0.5px solid rgba(245,240,232,0.2)",
-                borderRadius: "40px",
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "14px",
-                fontWeight: 400,
-                cursor: "pointer",
-                transition: "border-color 0.15s, background 0.15s",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = "rgba(245,240,232,0.4)";
-                e.currentTarget.style.background = "rgba(245,240,232,0.06)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "rgba(245,240,232,0.2)";
-                e.currentTarget.style.background = "transparent";
-              }}
-            >
-              Learn more
-            </button>
-          </Link>
-        </div>
-
-        {/* Scroll indicator */}
-        <div
-          style={{
-            marginTop: "4rem",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "6px",
-            animation: "bs-fade-in 1s ease 1s both",
-          }}
-        >
-          <span style={{ fontSize: "11px", letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(245,240,232,0.2)" }}>
-            Scroll
-          </span>
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="rgba(245,240,232,0.25)"
-            strokeWidth="1.5"
-            style={{ animation: "bs-scroll-pulse 2s ease-in-out infinite" }}
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
         </div>
       </div>
     </section>
   );
-}
+};
 
 export default Herobanner;

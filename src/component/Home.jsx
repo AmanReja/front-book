@@ -36,7 +36,7 @@ function Home() {
         <Loader />
       ) : (
         <div>
-          <Slider></Slider>
+          
 
           <Herobanner></Herobanner>
           <Products></Products>
